@@ -1,0 +1,14 @@
+
+
+@ocp_chat_toner = 0
+
+export('ocp.chat.toner', @ocp_chat_toner)
+
+bind(player_chat, null, null, @event,
+
+	cancel()
+	
+	_ocp_chat(@event['message'], player())
+
+)
+

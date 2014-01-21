@@ -1,0 +1,28 @@
+*:/launchtest2 = >>>
+foreach(
+    array(
+        array(ploc()[0] + 5,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] + 4,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] + 3,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] + 2,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] + 1,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0],ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] - 1,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] - 2,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] - 3,ploc()[1],ploc()[2] + 10,ploc()[3]),
+        array(ploc()[0] - 4,ploc()[1],ploc()[2] + 10,ploc()[3])
+    ), @loc){
+    queue_push(
+        closure(
+            launch_firework(@loc,
+                array(
+                    'strength':1,
+                    'flicker':'false',
+                    'trail':'false',
+                    'type':'BALL_LARGE'
+                )
+            )
+        )
+    )
+}
+<<< 

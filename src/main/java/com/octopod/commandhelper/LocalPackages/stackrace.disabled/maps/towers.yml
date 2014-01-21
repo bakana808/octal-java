@@ -1,0 +1,28 @@
+pack-name: '&eTower Set'
+pack-desc: '&eScale the tower!'
+
+test:
+    name: 'Tower I'
+    author: 'Octopod'
+    desc: ''
+    diff: 2
+    spawn_loc: [39.5, 9, -21.5, gm_lobby]
+    spawn_ang: [90, 0]
+    end_1: [27, 25, -21]
+    end_2: [27, 27, -23]
+    time_1: 40000
+    time_2: 45000
+    time_3: 100000
+    
+tower2:
+    name: 'Tower II'
+    author: 'Octopod'
+    desc: ''
+    diff: 3
+    spawn_loc: [39.5, 9, -35.5, gm_lobby]
+    spawn_ang: [90, 0]
+    end_1: [27, 25, -35]
+    end_2: [27, 27, -37]
+    time_1: 40000
+    time_2: 45000
+    time_3: 100000

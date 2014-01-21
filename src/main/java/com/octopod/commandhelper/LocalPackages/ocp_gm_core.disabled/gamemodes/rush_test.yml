@@ -1,0 +1,38 @@
+
+gm_name: 'FFA Rush'
+gm_map: 'test' 
+
+gm_world: 'env_blank'
+
+rounds: 1
+timelimit: 300
+health: 125
+
+#The player's walking speed. 0.27 is the default.
+speed: 0.35
+
+#The multiplier of damage done to yourself.
+self-damage-mult: 0.5
+#The multiplier of damage done to teammates.
+team-damage-mult: 0
+
+#in seconds
+respawntime: 3
+
+#these are multiplied by the amount of teams
+players-max: 8
+players-min: 2
+
+score-kill: 1
+score-death: 0
+score-suicide: -1
+
+score-teamkill: 0
+score-teamdeath: 0
+
+win-score: 5 
+win-last: 0
+       
+teams-enable: 0
+teams-amount: 2
+teams-ff: 0
