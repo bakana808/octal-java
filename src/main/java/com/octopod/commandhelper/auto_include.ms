@@ -2,10 +2,7 @@
 #	OctoLib CommandHelper
 #======================================================================================================#
 
-# Last Updated: 1 / 13 / 2014
-
-include('lib/geometry.ms')
-include('lib/text.ms')
+# Last Updated: 1 / 24 / 2014
 
 #======================================================================================================#
 #	Custom Event Functions
@@ -48,7 +45,7 @@ proc(_cmd_setMode, @boolean, if(@boolean, export('commandMode', true), export('c
 proc(_cmd_getMode, if(import('commandMode') === false, return(false), return(true)))
 
 proc(_creg, return(call_proc_array('_cmd_register', @arguments)))
-proc(_cmd_register, @commands, @closure, @node,
+proc(_cmd_register, @commands, @closure, @node, @examples,
 	
 	@command_list = import('commandList')
 	@command_links = import('commandLinks')
@@ -56,12 +53,21 @@ proc(_cmd_register, @commands, @closure, @node,
 	if(!is_array(@command_list), @command_list = array())
 	if(!is_array(@command_links), @command_links = array())
 	
+	if(@examples == '') {
+		@examples = array('<command>')
+	} else {
+		if(!is_array(@examples)) {
+			@examples = array(@examples)
+		}
+	}
+	
 	@array = array()
 
 	if(@closure == '') { return(false) }
 
 	@array[0] = @node
 	@array[1] = @closure
+	@array[2] = @examples
 
 	@i = array_size(@command_list)
 	
@@ -69,7 +75,10 @@ proc(_cmd_register, @commands, @closure, @node,
 	
 	if(!is_array(@commands), @commands = array(@commands))
 	
-	foreach(@commands, @cmd, @command_links[@cmd] = @i)
+	foreach(@commands, @cmd, 
+		console(color(f) . 'Command registered: ' . color(6) . @cmd, '')
+		@command_links[@cmd] = @i
+	)
 	
 	export('commandList', @command_list)
 	export('commandLinks', @command_links)
@@ -106,12 +115,11 @@ proc(_cmd_run, @cString,
 		
 		if(@cPerm != '' && !has_permission(player(), @cPerm), return(false))
 
-		@cRoot = parse_args(@cString)[0]
-		@cParsed = parse_args(substr(@cString, length(@cRoot)))
-
-		scriptas(player(), '*', 
-			@return = eval(string(@cClosure))
-		)
+		@cLabel = parse_args(@cString)[0]
+		@cArgs  = parse_args(substr(@cString, length(@cLabel)))
+		
+		console(color(f) . player() . ' ran a command: ' . color(6) . @cString, '')
+		scriptas(player(), '*', eval(string(@cClosure)))
 		
 		return(true)
 
@@ -121,6 +129,301 @@ proc(_cmd_run, @cString,
 			
 	return(false)
 		
+)
+
+#======================================================================================================#
+#	Base Chat Functions
+#======================================================================================================#
+
+proc(_chat, @m, @as,
+
+	if(@as == '', @as = player())
+
+	try(
+		foreach(all_players(), @player,
+			tmsg(@player, '<' . @as . '> ' . @m)
+		)
+		return(true),
+		return(false)
+	)
+	
+)
+
+proc(_broadcast, @m,
+
+	broadcast(@m)
+	
+)
+
+proc(_msg, @t, @m,
+
+	if(@t == '', @t = player())
+
+	try(
+		tmsg(@t, @m)
+		return(true),
+		return(false)
+	)
+	
+)
+
+#======================================================================================================#
+#	Advanced String Functions
+#======================================================================================================#
+
+#finds the applied formats to a position in a string
+proc(_string_colors, @string, @pos, @colorize,
+
+	@formats = array()
+	
+	@colors = reg_match_all('\u00a7[0-9a-fA-Fk-or]', substr(@string, 0, @pos))
+
+	foreach(@colors, @color,
+	
+		@code = substr(@color[0], 1)
+		
+		if(@code == 'r', @formats = array())
+		
+		if(reg_match('[0-9a-fA-Fk-o]', @code) != array(), array_remove_values(@formats, 'l'))
+		
+		array_push(@formats, @code)	
+		
+	)
+	
+	if(@colorize,
+		foreach(@formats, @format,
+			@premade .= color(@format)
+		)
+		return(@premade),
+		return(@formats)
+	)
+	
+)
+
+#fills the rest of the string with filler characters until the width of it is of @towidth
+#use @align: 0 = left alignment, 1 = right alignment, 2 = center alignment
+#use sep to return an array with the string and the generated filler character string
+ 
+proc(_text, @string, @towidth, @align, @sep,
+
+	@string = colorize(@string)
+
+	@filler_color = color(8)
+
+	if(!is_integer(@align), @align = 0)
+
+	@array = _truncate(@string, @towidth, @wordwrap)
+	
+	@string = @array[0]
+	@left = @array[1]
+
+	@extra = @towidth - _string_width(@string)
+
+	if(@align == 2,
+		@extra1 = @extra / 2
+		@extra2 = @extra / 2
+		if(!is_integer(@extra1),
+			@extra1 += 0.5 
+			@extra2 -= 0.5
+		)
+		if(mod(integer(@extra1), 2) != 0 && @extra1 == 1,
+			@extra1 -= 1
+			@extra2 += 1
+		)
+		@extra = array(integer(@extra1), integer(@extra2)),
+		@extra = array(@extra)
+	)
+	
+	@fills = array()
+
+	foreach(@extra, @e,
+	
+		@res = res_create_resource('STRING_BUILDER')
+		
+		while(@e > 5,
+			string_append(@res,  ' ')
+			@e -= 4
+		)
+
+		switch(@e,
+			5,
+				string_append(@res,  color(l) . ' '),
+			4,
+				string_append(@res,  ' '),
+			3, 
+				string_append(@res,  @filler_color . color(l) . '`'),
+			2,
+				string_append(@res,  @filler_color . '`')
+		)
+		
+		@fill = string(@res)
+		res_free_resource(@res)
+		
+		@fills[] = color(r) . @fill . color(r)
+		
+	)
+	
+	if(@align == '', @align = 0)
+	
+	switch(@align,
+		0,
+			if(@sep,
+				return(array(@string . @fills[0], @string, @fills[0], '', @left)),
+				return(@string . @fills[0])
+			),
+		1,
+			if(@sep,
+				return(array(@fills[0] . @string, @string, @fills[0], '', @left)),
+				return(@fills[0] . @string)
+			),
+		2,
+			if(@sep,
+				return(array(@fills[0] . @string . @fills[1], @string, @fills[0], @fills[1], @left)),
+				return(@fills[0] . @string . @fills[1])
+			)
+	)
+
+)
+	
+
+#returns the location(s) in the string that will cause a wordwrap (override the default width of 320 with @towidth)
+proc(_wordwraps, @string, @towidth,
+
+	if(is_integer(@towidth),
+		@linewidth = @towidth,
+		@linewidth = 320 #the total width on one line is 320
+	)
+
+	@max_wordlength = 15 #if a word has more characters than this number, it cuts to the next line.
+	
+	@chars = split('', @string)
+	
+	@widths = _char_width()
+	
+	@totalwidth = 0
+	@wraplocs = array()
+	
+	foreach(@chars, @i, @char,
+	
+		@width = _char_width(@char)
+		
+		@totalwidth += @width
+		
+		@lines = floor(@totalwidth / @linewidth)
+		
+		@key = @lines - 1
+		
+		if(!array_index_exists(@wraplocs, @key) && @key > -1,
+
+			@temp = @i
+			
+			while(true,
+				if(@chars[@temp] == ' ', #if the wrap location is a space
+					@wraplocs[@key] = @temp #allow it to be added to the array
+					break(),
+					if(@i - @temp > @max_wordlength, #limits how far back in the string to check for spaces
+						@wraplocs[@key] = @i #if it goes past the max wordlength, just give up and push the original position
+						break(),
+						@temp -= 1
+					)
+				)
+			)
+		)
+	)
+
+	return(@wraplocs)
+	
+)
+		
+
+#returns the total pixel width of the string
+proc(_string_width, @string,
+
+	@array = split('', @string)
+	@width = 0
+	
+	@colorcode = false
+
+	foreach(@array, @i, @c,
+	
+		try(@match = reg_match('[0-9a-fA-Fk-or]', @array[@i + 1]), @match = array())
+
+		if(@c == '\u00a7' && @match != array(), 
+			@colorcode = true 
+			continue()
+		)
+
+		if(@colorcode == false, 
+			if(array_contains(_string_colors(@string, @i), 'l'),
+				@width += _char_width(@c) + 1,
+				@width += _char_width(@c)
+			)
+		)
+		
+		@colorcode = false
+	)	
+		
+	return(@width)
+)
+
+#cuts off part of the string so its width is of @max or less, then returns an array containing the section cut out, and the rest of the string.
+#if @wordwrap is true, try to look for nearby spaces instead of cutting in the middle of words
+proc(_truncate, @string, @max, @wordwrap,
+
+	@maxwordlength = 15
+	@temp = @string
+
+	@format = _string_colors(@string, length(@string), true)
+
+	@end = length(@string)
+
+	@width = _string_width(@string)
+
+	while(@width > @max,
+
+		if(strip_colors(@string[cslice(-2, -1)]) == '', @end -= 3, @end -= 1)
+		
+		@left = substr(@string, @end) . @left
+
+		@string = substr(@string, 0, @end) #cuts one character from the end of the string
+		
+		@width = _string_width(@string)
+		
+		if(@width <= @max && @wordwrap,
+			
+			@loops = 0
+
+			while(@string[@end - 1] != ' ',
+			
+				@end -= 1
+
+				@temp = substr(@string, 0, @end)
+
+				if(@loops > @maxwordlength,
+					
+					break(),
+					
+				)
+				
+				try(@string[@end - 1], break())
+				
+				@loops++
+				
+				if(@string[@end - 1] == ' ',
+				
+					@left = substr(@string, @end) . @left
+					
+					@string = @temp
+
+					break()
+						
+				)
+			)
+		)
+	)
+	
+	return(array(@format . @string, @format . @left))
+	
 )
 
 #======================================================================================================#
@@ -153,6 +456,8 @@ proc(_iterate_radius, @center, @radius,
 	
 )
 
+	
+
 #======================================================================================================#
 #	Misc Funcitons
 #======================================================================================================#
@@ -163,6 +468,49 @@ proc(_item_fix, @item,
 	if(array_size(@item) == 1,
 		return(array(@item[0], 0)),
 		return(array(@item[0], @item[1]))
+	)
+	
+)
+
+proc(_v2, return(call_proc_array('_vector2', @arguments)))
+proc(_vector2, @x = 0, @y = 0, return(array(@x, @y)))
+
+proc(_v, return(call_proc_array('_vector3', @arguments)))
+proc(_vector3, @x = 0, @y = 0, @z = 0, return(array(@x, @y, @z)))
+
+proc(_v4, return(call_proc_array('_vector4', @arguments)))
+proc(_vector4, @x = 0, @y = 0, @z = 0, @a = 0, return(array(@x, @y, @z, @a)))
+
+proc(_adv_pos, @player, @array,
+
+	try(@player = player(@player), @player = player())
+
+	if(@array === '',
+		@loc = ploc(@player)
+		@ang = pfacing(@player)
+		return(array(@loc[0], @loc[1], @loc[2], @ang[0], @ang[1], @loc[3])),
+		switch(array_size(@array),
+			3,
+				foreach(@array, @n, if(!is_numeric(@n), return(false)))
+				set_ploc(@player, array(@array[0], @array[1], @array[2], pworld(@player)))
+				return(true),
+			4,
+				foreach(@array, @n, if(!is_numeric(@n), return(false)))
+				set_ploc(@player, array(@array[0], @array[1], @array[2], pworld(@player)))
+				pfacing(@player, @array[3], 0)
+				return(true),
+			5,
+				foreach(@array, @n, if(!is_numeric(@n), return(false)))
+				set_ploc(@player, array(@array[0], @array[1], @array[2], pworld(@player)))
+				pfacing(@player, @array[3], @array[4])
+				return(true),
+			6,
+				foreach(@array[cslice(0,4)], @n, if(!is_numeric(@n), return(false)))
+				set_ploc(@player, array(@array[0], @array[1], @array[2], pworld(@player)))
+				pfacing(@player, @array[3], @array[4])
+				return(true),		
+				return(false)
+		)
 	)
 	
 )
@@ -332,7 +680,7 @@ proc(_loc_key, @loc,
 	)
 )
 
-proc(_loc_fix, @loc, @decimals = 0,
+proc(_loc_fix, @loc, @decimals = 1,
 
 	@new = array()
 	
@@ -346,14 +694,169 @@ proc(_loc_fix, @loc, @decimals = 0,
 	
 	if(array_index_exists(@loc, 3), @new[3] = @loc[3])
 	if(array_index_exists(@loc, world), @new[3] = @loc[world])
-
-	if(array_index_exists(@loc, 4), @new[4] = round(@loc[4]), 2)
-	if(array_index_exists(@loc, yaw), @new[4] = round(@loc[yaw]), 2)
 	
-	if(array_index_exists(@loc, 5), @new[5] = round(@loc[5]), 2)
-	if(array_index_exists(@loc, pitch), @new[5] = round(@loc[pitch]), 2)
+	return(@new)
+	
+)
+
+proc(_loc_fix_adv, @loc,
+
+	@new = array()
+	
+	if(array_index_exists(@loc, 0), @new[0] = round(@loc[0], 2))
+	if(array_index_exists(@loc, 1), @new[1] = round(@loc[1], 2))
+	if(array_index_exists(@loc, 2), @new[2] = round(@loc[2], 2))
+	
+	if(array_index_exists(@loc, x), @new[0] = round(@loc[x], 2))
+	if(array_index_exists(@loc, y), @new[1] = round(@loc[y], 2))
+	if(array_index_exists(@loc, z), @new[2] = round(@loc[z], 2))
+	
+	if(array_index_exists(@loc, 3), @new[3] = @loc[3])
+	if(array_index_exists(@loc, world), @new[3] = @loc[world])
+
+	if(array_index_exists(@loc, 4), @new[4] = round(@loc[4]))
+	if(array_index_exists(@loc, yaw), @new[4] = round(@loc[yaw]))
+	
+	if(array_index_exists(@loc, 5), @new[5] = round(@loc[5]))
+	if(array_index_exists(@loc, pitch), @new[5] = round(@loc[pitch]))
 		
 	return(@new)
+	
+)
+
+proc(_vec2_add, @vec1, @vec2,
+
+	@vec = array(@vec1[0] + @vec2[0], @vec1[1] + @vec2[1])
+	
+	foreach(@vec1, @i, @a,
+		if(!array_contains(range(0,3), @i),
+			@vec[@i] = @a
+		)
+	)
+	
+	return(@vec)
+	
+)
+
+proc(_vec_add, @vec1, @vec2,
+
+	@vec = array(@vec1[0] + @vec2[0], @vec1[1] + @vec2[1], @vec1[2] + @vec2[2])
+	
+	foreach(@vec1, @i, @a,
+		if(!array_contains(range(0,3), @i),
+			@vec[@i] = @a
+		)
+	)
+	
+	return(@vec)
+	
+)
+
+proc(_vec_sub, @vec1, @vec2,
+
+	@vec = array(@vec1[0] - @vec2[0], @vec1[1] - @vec2[1], @vec1[2] - @vec2[2])
+	
+	foreach(@vec1, @i, @a,
+		if(!array_contains(range(0,3), @i),
+			@vec[@i] = @a
+		)
+	)
+	
+	return(@vec)
+	
+)
+
+proc(_vec_dist, @loc1, @loc2,
+
+	@x = pow((@loc1[0] - @loc2[0]), 2)
+	@y = pow((@loc1[1] - @loc2[1]), 2)
+	@z = pow((@loc1[2] - @loc2[2]), 2)
+	
+	@dist = sqrt(@x + @y + @z)
+	
+	return(@dist)
+	
+)
+
+proc(_math_average_loc, @locarray,
+
+	@x = 0
+	@y = 0
+	@z = 0
+	
+	foreach(@locarray, @loc,
+	
+		@x = @x + @loc[0]
+		@y = @y + @loc[1]
+		@z = @z + @loc[2]
+		
+	)
+	
+	@x = round(@x / array_size(@locarray))
+	@y = round(@y / array_size(@locarray))
+	@z = round(@z / array_size(@locarray))
+	
+	return(array(@x, @y, @z))
+	
+)
+
+proc(_vec_average, @locarray,
+
+	@vectors = array_size(@locarray)
+	
+	if(@vectors == 0, return(array(0,0,0)))
+
+	@x = 0
+	@y = 0
+	@z = 0
+	
+	foreach(@locarray, @loc,
+		@x += @loc[0]
+		@y += @loc[1]
+		@z += @loc[2]
+	)
+	
+	@x = round(@x / @vectors)
+	@y = round(@y / @vectors)
+	@z = round(@z / @vectors)
+	
+	return(array(@x, @y, @z))
+	
+)
+
+proc(_vec_mult, @vec1, @vec,
+
+	if(!is_array(@vec)) {
+		@vec = array(@vec, @vec, @vec)
+	}
+
+	@vec1[0] = @vec1[0] * @vec[0]
+	@vec1[1] = @vec1[1] * @vec[1]
+	@vec1[2] = @vec1[2] * @vec[2]
+	
+	return(@vec1)
+	
+)
+
+proc(_vec_normalize, @vec,
+
+	@l = _vec_magnitude(@vec)
+	
+	if(@l == 0, return(array(0,0,0)))
+	
+	@vec[0] = (@vec[0] / @l)
+	@vec[1] = (@vec[1] / @l)
+	@vec[2] = (@vec[2] / @l)
+	
+	return(@vec)
+	
+)
+
+proc(_vec_magnitude, @vec,
+
+	@l = sqrt(pow(@vec[0], 2) + pow(@vec[1], 2) + pow(@vec[2], 2))
+	
+	return(@l)
 	
 )
 

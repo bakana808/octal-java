@@ -1,17 +1,18 @@
 package com.octopod.utils.common;
 
 import java.io.ByteArrayInputStream;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.octopod.utils.common.IOUtils;
 
 /**
- * Last Updated: 1.20.2014
+ * Last Updated: 1.21.2014
  * File Utilties
  * @author Octopod
  */
@@ -61,5 +62,32 @@ public class FileUtil {
 		}
 		
 	}
+	
+	public static boolean is_directory(File path) {
+		return path.isDirectory();
+	}
+	
+	public static List<String> ls(File path) {
+		
+		List<String> files = new ArrayList<String>();
+		
+		if(!path.isDirectory()) return files;
+		
+		for(File file: path.listFiles()) {
+			files.add(file.getName());
+		}
+		
+		return files;
+		
+	}
 
 }
+
+
+
+
+
+
+
+
+

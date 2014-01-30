@@ -3,6 +3,8 @@
 #	Command Handler (accepts any string as command label)
 #======================================================================================================#
 
+_cmd_setMode(false)
+
 bind(player_command, array(id: 'event_command'), null, @event,
 
 	scriptas(player(), '*',
@@ -28,13 +30,74 @@ bind(player_chat, array(priority: highest, id: 'event_chat'), null, @event,
 
 )
 
-_creg('!eval',
-	closure(
+_creg('/help', closure(
+
+	msg(colorize('&6OctoLib by Octopod'))
+	msg(colorize('&7Hover over commands for more information.'))
+	msg(colorize('&8---------------------------'))
+	
+	@command_list = import('commandList')
+	@command_link = import('commandLinks')
+	
+	@chat_elements = array()
+	
+	@label = array_keys(@command_link)[0]
+	@cmdArray = @command_list[@command_link[@label]]
+	@tooltip = array('&6Example Usages: ')
+	foreach(@cmdArray[2], @example,
+		@tooltip[] = replace(@example, '<command>', @label)
+	)	
+	
+	@chat_elements[] = array(
+		text: @label,
+		/*
+		onHover: array(
+			event: 'show_text',
+			value: array_implode(@tooltip, '\n')
+		),
+		*/
+		color: gold
+	)		
+		
+	for(@i = 1, @i < array_size(@command_link), @i++) {
+		
+		@label = array_keys(@command_link)[@i]
+		@cmdArray = @command_list[@command_link[@label]]
+		@tooltip = array('&6Example Usages: ')
+		foreach(@cmdArray[2], @example,
+			@tooltip[] = replace(@example, '<command>', @label)
+		)
+		
+		@chat_elements[] = array(
+			text: ', ' . @label,
+			/*
+			onHover: array(
+				event: 'show_text',
+				value: array_implode(@tooltip, '\n')
+			),
+			*/
+			color: gold
+		)
+		
+	}
+
+	chjc_msg(@chat_elements)
+	
+))
+
+_creg('/sudo', closure(
+
+	@command = array_implode(@cArgs)
+	sudo(@command)
+
+), '*')
+
+_creg('!eval', closure(
 		if(player() != 'TheOctopod', die())
 		
-		@section = array_implode(@cParsed)
+		@section = array_implode(@cArgs)
 		
-		broadcast(color(8) . '< ' . color(7) . array_implode(@cParsed))
+		broadcast(color(8) . '< ' . color(7) . array_implode(@cArgs))
 		
 		if(!import('octolib.eval.multiline') && @section == '>>>',
 			export('octolib.eval.multiline', true)
@@ -71,5 +134,4 @@ _creg('!eval',
 		} else {
 			broadcast(color(8) . '> ' . color(a) . @return)
 		}
-	)
-)
+), '*')

@@ -18,7 +18,7 @@ import com.octopod.utils.bukkit.ChatElement.ChatClickEvent;
 import com.octopod.utils.bukkit.ChatElement.ChatHoverEvent;
 
 /**
- * Last Updated: 1.11.2014
+ * Last Updated: 1.23.2014
  * ChatBuilder to build messages for Minecraft's new JSON chat.
  * Utitlizes "method chaining."
  * @author Octopod
@@ -69,9 +69,22 @@ public class ChatBuilder {
 	}
 	
 	/**
+	 * Gets the ChatElement at the specified index. Returns null if out of bounds.
+	 * @return The ChatElement from the index, or null if not found.
+	 */		
+	
+	public ChatElement getElementAt(int i) {
+		try {
+			return allElements.get(i);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+	
+	/**
 	 * Manually selects the current ChatElement.
 	 * @param index The index to select.
-	 */		
+	 */	
 	
 	public ChatBuilder select(int index) {
 		if(inRange(index)) currentElement = allElements.get(index);
@@ -149,7 +162,7 @@ public class ChatBuilder {
 		}
 		
 		public ChatBuilder item(ItemStack item) {
-			return hover(ChatHoverEvent.SHOW_ITEM, itemtoJSON(item));
+			return hover(ChatHoverEvent.SHOW_ITEM, ChatUtils.itemtoJSON(item));
 		}
 		
 	/**
@@ -198,129 +211,7 @@ public class ChatBuilder {
 	 */
 	
 	public String toLegacy() {
-		return ChatBuilder.toLegacy(this);
-	}
-	
-	//=======================================================================================
-	// Static Methods Below
-	//=======================================================================================
-
-	public static ChatColor stringToChatColor(String color) throws IllegalArgumentException {
-		switch(color.toUpperCase()) {
-			case "obfuscated":
-				return ChatColor.MAGIC;
-			case "underlined":
-				return ChatColor.UNDERLINE;
-			default:
-				return ChatColor.valueOf(color.toUpperCase());
-		}
-	}
-	
-	public static String stringFromChatColor(ChatColor color) {
-		switch(color) {
-			case MAGIC:
-				return "obfuscated";
-			case UNDERLINE:
-				return "underlined";
-			default:
-				return color.name().toLowerCase();
-		}
-	}
-
-	/**
-	 * Converts a ChatBuilder object to Minecraft legacy chat string. 
-	 * Obviously, hover and click events won't carry over.
-	 * @param builder The ChatBuilder object to convert
-	 * @return The legacy chat string.
-	 */
-	
-	public static String toLegacy(ChatBuilder builder, char colorSymbol) {
-		
-		StringBuilder sb = new StringBuilder();
-		
-		for(ChatElement e: builder.getChatElements()) {
-			sb.append(colorSymbol + "" + e.getColor().getChar());
-			for(ChatColor style: e.getFormats())
-				sb.append(colorSymbol + "" + style.getChar());
-			sb.append(e.getText());
-		}
-		
-		return sb.toString();
-		
-	}
-	
-	public static String toLegacy(ChatBuilder builder) {return toLegacy(builder, '&');}
-	
-	/**
-	 * Converts Minecraft legacy chat to a ChatBuilder object.
-	 * @param message The legacy chat string to convert
-	 * @return A new ChatBuilder object.
-	 */
-	
-	public static ChatBuilder fromLegacy(String message, char colorSymbol) {
-		ChatBuilder builder = new ChatBuilder();
-
-		StringBuilder text = new StringBuilder();
-		boolean nextIsColorCode = false;
-		ChatColor lastColor = ChatColor.WHITE;
-		List<ChatColor> styles = new ArrayList<ChatColor>();
-
-		for(char c: message.toCharArray()) {
-			
-			if(c == colorSymbol) {
-				nextIsColorCode = true;
-				continue;
-			}
-			
-			if(nextIsColorCode) {
-				nextIsColorCode = false;
-				ChatColor color = ChatColor.getByChar(c);
-				if(color != null) {
-					if(color.isColor()) {
-						//Push new element
-						if(!text.toString().equals("")) builder.push(text.toString()).color(lastColor).format(styles.toArray(new ChatColor[styles.size()]));
-						//Reset variables
-						text = new StringBuilder();
-						lastColor = color;
-						styles = new ArrayList<ChatColor>();
-					}
-					if(color.isFormat())
-						styles.add(color);
-				}
-				continue;
-			}
-			
-			text.append(c);
-			
-		}
-		
-		builder.push(text.toString()).color(lastColor).format(styles.toArray(new ChatColor[styles.size()]));
-		
-		return builder;
-	}
-	
-	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '&');}
-	
-	@SuppressWarnings("deprecation")
-	public static String itemtoJSON(ItemStack item) {
-		
-		Map<String, Object> json = new HashMap<String, Object>();
-		Map<String, Object> meta = new HashMap<String, Object>();
-		Map<String, Object> display = new HashMap<String, Object>();
-		
-		json.put("id", item.getTypeId());
-		json.put("Damage", (int)item.getData().getData());
-		json.put("Count", item.getAmount());
-		
-		try{
-			display.put("Name", item.getItemMeta().getDisplayName());
-			meta.put("display", display);
-		} catch (NullPointerException e) {}
-	
-		json.put("tag", meta);
-		
-		return JSONValue.toJSONString(json);
-		
+		return ChatUtils.toLegacy(this);
 	}
 	
 	//=======================================================================================

@@ -97,7 +97,7 @@ public class ChatElement {
 		}
 
 		for(ChatColor style: formats)
-			json.put(ChatBuilder.stringFromChatColor(style), true);
+			json.put(ChatUtils.keyFromChatColor(style), true);
 		
 		json.put("color", color.name().toLowerCase());
 
