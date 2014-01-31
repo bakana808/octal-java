@@ -12,24 +12,16 @@ import com.octopod.bukgetapi.BukgetException;
 import com.octopod.bukgetapi.BukgetPlugin;
 import com.octopod.bukgetapi.BukgetPluginVersion;
 import com.octopod.examples.AbstractClass;
+import com.octopod.utils.ShellCommand;
 import com.octopod.utils.common.FileUtil;
+import com.octopod.utils.common.StringUtils;
 
 public class OctoLib {
 
-	public static void main(String args[]) throws BukgetException {
-		
-		String slug = "commandhelper";
-		
-		System.out.println("Initiating Bukget...");
-		Bukget bukget = Bukget.getInstance();
-		System.out.println("Finding plugin...");
-		BukgetPlugin plugin = bukget.getPlugin("commandhelper");
-		System.out.println("Finished.");
-		System.out.println("-------------------");
-		for(BukgetPluginVersion version: plugin.getAllVersions()) {
-			System.out.println("Version: " + version.getName());
-			System.out.println("Name: " + version.getDownload());
-		}
+	public static void main(String args[]) throws RuntimeException {
+
+		System.out.println(ShellCommand.execute("cmd.exe /C cd"));
+
 	}
 	
 }

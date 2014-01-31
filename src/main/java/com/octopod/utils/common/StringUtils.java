@@ -161,4 +161,48 @@ public class StringUtils {
             
         }
         
+        static public List<String> parseArgs(String text) {
+        	
+        	List<String> args = new ArrayList<String>();
+
+        	boolean inQuotes = false;
+        	boolean inEscape = false;
+        	
+        	StringBuilder element = new StringBuilder();
+        	
+        	char[] charArray = text.toCharArray();
+        	for(int i = 0; i < charArray.length; i++) {
+        		
+        		char c = charArray[i];
+
+        		if(c == '"' && !inEscape) {
+        			inQuotes = inQuotes == true ? false : true; //Toggle on/off inQuotes
+        			continue;
+        		}
+        		
+        		if(!inQuotes && c == ' ') {
+        			args.add(element.toString());
+        			element = new StringBuilder();
+        			continue;
+        		}
+        		
+        		if(c == '\\') {
+        			inEscape = true;
+        			continue;
+        		} else {
+        			inEscape = false;
+        		}
+        		       		
+        		element.append(c);
+        		
+        	}
+        	
+        	if(!element.toString().equalsIgnoreCase("")) {
+        		args.add(element.toString());
+        	}
+        	
+        	return args;
+         	
+        }
+       
 }
