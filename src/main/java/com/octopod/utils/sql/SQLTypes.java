@@ -1,4 +1,4 @@
-package com.octopod.utils;
+package com.octopod.utils.sql;
 
 import java.util.HashSet;
 import java.util.Iterator;

@@ -1,4 +1,4 @@
-package com.octopod.utils;
+package com.octopod.utils.sql;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

@@ -1,4 +1,4 @@
-package com.octopod.utils;
+package com.octopod.utils.sql;
 
 public class SQLColumn {
 	
