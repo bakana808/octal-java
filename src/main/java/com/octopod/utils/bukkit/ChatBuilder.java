@@ -14,9 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONValue;
 
-import com.octopod.utils.bukkit.ChatElement.ChatClickEvent;
-import com.octopod.utils.bukkit.ChatElement.ChatHoverEvent;
-
 /**
  * Last Updated: 1.23.2014
  * ChatBuilder to build messages for Minecraft's new JSON chat.
@@ -97,7 +94,7 @@ public class ChatBuilder {
 	 * @param message The message to push.
 	 */		
 	
-	public ChatBuilder push(String message) {
+	public ChatBuilder append(String message) {
 		allElements.add(new ChatElement(message));
 		return select(size() - 1);
 	}
@@ -108,37 +105,64 @@ public class ChatBuilder {
 	 * @param element The ChatElement to push.
 	 */		
 	
-	public ChatBuilder push(ChatElement element) {
+	public ChatBuilder append(ChatElement element) {
 		allElements.add(element);
 		return select(size() - 1);
+	}
+	
+	/**
+	 * Pushes filler to the end of the ChatBuilder, as a new ChatElement.
+	 * Fillers fit text to a pixel width (according to Minecraft's default font)
+	 * Fillers will contain filler characters if the width is too abnormal.
+	 * If you want to avoid filler characters, make sure the width is divisible by 4. (the width of a space)
+	 * It will also select the last element.
+	 * @param width The width of the filler.
+	 */		
+	
+	public ChatBuilder appendFiller(int width) { 
+		allElements.add(new ChatElement(ChatUtils.filler(width)));
+		return select(size() - 1);
+	}
+	
+	public ChatBuilder fill(int width) {
+		String text;
+			text = ChatUtils.cut(currentElement.getText(), width);
+		String filler;
+			filler = ChatUtils.filler(width - ChatUtils.width(text));
+		currentElement.text(text);
+		return append(new ChatElement(filler).color(ChatColor.GRAY));
+	}
+	
+	public int width() {
+		return ChatUtils.width(currentElement.getText());
 	}
 	
 	/**
 	 * Sets the hover event of the currently selected ChatElement.
 	 * @param event The ChatHoverEvent to use.
 	 * @param value The value, as a string.
-	 */	
+	 */
 	
-	public ChatBuilder click(ChatClickEvent event, String value) {
+	public ChatBuilder click(ChatEnum.clickEvent event, String value) {
 		if(exists())
 			currentElement.click(event, value);
 		return this;
 	}
 		
 		public ChatBuilder run(String command) {
-			return click(ChatClickEvent.RUN_COMMAND, command);
+			return click(ChatEnum.clickEvent.RUN_COMMAND, command);
 		}
 		
 		public ChatBuilder suggest(String command) {
-			return click(ChatClickEvent.SUGGEST_COMMAND, command);
+			return click(ChatEnum.clickEvent.SUGGEST_COMMAND, command);
 		}
 		
 		public ChatBuilder link(String url) {
-			return click(ChatClickEvent.OPEN_URL, url);
+			return click(ChatEnum.clickEvent.OPEN_URL, url);
 		}
 		
 		public ChatBuilder file(String path) {
-			return click(ChatClickEvent.OPEN_FILE, path);
+			return click(ChatEnum.clickEvent.OPEN_FILE, path);
 		}
 		
 	/**
@@ -147,22 +171,22 @@ public class ChatBuilder {
 	 * @param value The value, as a string.
 	 */
 		
-	public ChatBuilder hover(ChatHoverEvent event, String value) {
+	public ChatBuilder hover(ChatEnum.hoverEvent event, String value) {
 		if(exists())
 			currentElement.hover(event, value);
 		return this;
 	}
 	
 		public ChatBuilder tooltip(String text) {
-			return hover(ChatHoverEvent.SHOW_TEXT, text);
+			return hover(ChatEnum.hoverEvent.SHOW_TEXT, text);
 		}
 		
 		public ChatBuilder achievement(String name) {
-			return hover(ChatHoverEvent.SHOW_ACHIEVEMENT, name);
+			return hover(ChatEnum.hoverEvent.SHOW_ACHIEVEMENT, name);
 		}
 		
 		public ChatBuilder item(ItemStack item) {
-			return hover(ChatHoverEvent.SHOW_ITEM, ChatUtils.itemtoJSON(item));
+			return hover(ChatEnum.hoverEvent.SHOW_ITEM, ChatUtils.itemtoJSON(item));
 		}
 		
 	/**
