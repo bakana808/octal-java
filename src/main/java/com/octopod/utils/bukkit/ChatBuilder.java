@@ -14,7 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONValue;
 
-import static com.octopod.utils.bukkit.ChatEnum.*;
+import com.octopod.utils.bukkit.ChatUtils.ClickEvent;
+import com.octopod.utils.bukkit.ChatUtils.HoverEvent;
+import com.octopod.utils.bukkit.ChatUtils.Alignment;
 
 /**
  * Last Updated: 1.31.2014
@@ -195,22 +197,22 @@ public class ChatBuilder {
 	 * @param value The value, as a string.
 	 */
 		
-	public ChatBuilder hover(ChatEnum.HoverEvent event, String value) {
+	public ChatBuilder hover(HoverEvent event, String value) {
 		if(exists())
 			currentElement.hover(event, value);
 		return this;
 	}
 	
 		public ChatBuilder tooltip(String text) {
-			return hover(ChatEnum.HoverEvent.SHOW_TEXT, text);
+			return hover(HoverEvent.SHOW_TEXT, text);
 		}
 		
 		public ChatBuilder achievement(String name) {
-			return hover(ChatEnum.HoverEvent.SHOW_ACHIEVEMENT, name);
+			return hover(HoverEvent.SHOW_ACHIEVEMENT, name);
 		}
 		
 		public ChatBuilder item(ItemStack item) {
-			return hover(ChatEnum.HoverEvent.SHOW_ITEM, ChatUtils.itemtoJSON(item));
+			return hover(HoverEvent.SHOW_ITEM, ChatUtils.itemtoJSON(item));
 		}
 		
 	/**

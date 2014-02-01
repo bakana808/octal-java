@@ -9,8 +9,8 @@ import java.util.Map;
 import org.bukkit.ChatColor;
 import org.json.simple.JSONValue;
 
-import com.octopod.utils.bukkit.ChatEnum.ClickEvent;
-import com.octopod.utils.bukkit.ChatEnum.HoverEvent;
+import com.octopod.utils.bukkit.ChatUtils.ClickEvent;
+import com.octopod.utils.bukkit.ChatUtils.HoverEvent;
 
 /**
  * Last Updated: 1.31.2014

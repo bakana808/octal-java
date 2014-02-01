@@ -15,6 +15,22 @@ import org.json.simple.JSONValue;
  * @author Octopod
  */
 public class ChatUtils {
+	
+	public enum Alignment {
+		LEFT, RIGHT, CENTER
+	}
+	
+	public enum Flags {
+		UNPRECISE, SKIPRIGHT
+	}
+	
+	public enum ClickEvent {
+		OPEN_URL, OPEN_FILE, RUN_COMMAND, SUGGEST_COMMAND
+	}
+	
+	public enum HoverEvent {
+		SHOW_TEXT, SHOW_ACHIEVEMENT, SHOW_ITEM
+	}
 
 	public static ChatColor keyToChatColor(String color) throws IllegalArgumentException {
 		switch(color.toUpperCase()) {
@@ -205,7 +221,7 @@ public class ChatUtils {
 	     */
 	
 	@Deprecated
-    static public String block(String text, int toWidth, ChatEnum.Alignment alignment, ChatEnum.Flags... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
+    static public String block(String text, int toWidth, Alignment alignment, Flags... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
     
 	    /**
 	     * Creates a block of text with a variable width. Useful for aligning text into columns on multiple lines.
@@ -218,18 +234,18 @@ public class ChatUtils {
 	     */
     
 	@Deprecated
-    static public String block(String text, int toWidth, ChatEnum.Alignment alignment, String emptyFiller, ChatEnum.Flags... flag_array){
+    static public String block(String text, int toWidth, Alignment alignment, String emptyFiller, Flags... flag_array){
     	
     	boolean precise = true;
     	boolean skipRightFiller = false;
     	
-    	List<ChatEnum.Flags> flags = new ArrayList<ChatEnum.Flags>();
+    	List<Flags> flags = new ArrayList<Flags>();
     	
-    	for(ChatEnum.Flags flag: flag_array)
+    	for(Flags flag: flag_array)
     		flags.add(flag);
     	
-    	if(flags.contains(ChatEnum.Flags.UNPRECISE)) precise = false;
-    	if(flags.contains(ChatEnum.Flags.SKIPRIGHT)) skipRightFiller = true;
+    	if(flags.contains(Flags.UNPRECISE)) precise = false;
+    	if(flags.contains(Flags.SKIPRIGHT)) skipRightFiller = true;
         
         text = cut(text, toWidth, false) + ChatColor.RESET;
 
@@ -248,7 +264,7 @@ public class ChatUtils {
                 fill = new String[]{""};
         }
         
-        if(!skipRightFiller || alignment != ChatEnum.Alignment.LEFT)
+        if(!skipRightFiller || alignment != Alignment.LEFT)
 	        for(int i = 0; i < extra.length; i++) {
 	        	if((!skipRightFiller && i == 1) || i == 0)
 	        		fill[i] += filler(extra[i], precise, emptyFiller);

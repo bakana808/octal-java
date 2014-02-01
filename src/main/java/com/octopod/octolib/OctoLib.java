@@ -20,7 +20,7 @@ public class OctoLib {
 
 	public static void main(String args[]) throws RuntimeException {
 
-		System.out.println(ShellCommand.execute("cmd.exe /C echo %PATH%"));
+		System.out.println(StringUtils.parseArgs("\"a\""));
 
 	}
 	
