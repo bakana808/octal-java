@@ -4,9 +4,9 @@ import java.io.InputStream;
 
 import net.md_5.bungee.api.plugin.Plugin;
 
-import com.octopod.utils.ConfigUtils;
+import com.octopod.utils.yaml.YamlUtils;
 
-public class InitBungeeConfigUtils extends ConfigUtils{
+public class InitBungeeConfigUtils extends YamlUtils{
 
 	private Plugin plugin;
 	

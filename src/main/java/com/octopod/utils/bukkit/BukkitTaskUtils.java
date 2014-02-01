@@ -3,11 +3,11 @@ package com.octopod.utils.bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-public class TaskUtils {
+public class BukkitTaskUtils {
 	
 	private static JavaPlugin PLUGIN;
 	
-	public TaskUtils(JavaPlugin plugin) {PLUGIN = plugin;}
+	public BukkitTaskUtils(JavaPlugin plugin) {PLUGIN = plugin;}
 	
 	public static BukkitTask runTimeout(long delay, Runnable code) {
 

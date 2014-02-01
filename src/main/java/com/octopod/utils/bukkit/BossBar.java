@@ -8,7 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import com.octopod.utils.reflection.ClassField;
+import com.octopod.utils.reflection.ClassUtils;
+import com.octopod.utils.reflection.ReflectionException;
 
 public class BossBar {
 	
@@ -23,62 +24,67 @@ public class BossBar {
 	public BossBar(Player player, String text, int health) {
 		this.player = player; 
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		PacketUtils.sendPacket(player, packet);
+		BukkitPacketUtils.sendPacket(player, packet);
 	}
 	
 	public void setBoth(String text, int health) {
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		PacketUtils.sendPacket(player, packet);		
+		BukkitPacketUtils.sendPacket(player, packet);		
 	}
 	
 	public void setText(String text) {
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		PacketUtils.sendPacket(player, packet);		
+		BukkitPacketUtils.sendPacket(player, packet);		
 	}
 	
 	public void setHealth(int health) {
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		PacketUtils.sendPacket(player, packet);		
+		BukkitPacketUtils.sendPacket(player, packet);		
 	}	
 	
 	public void destroy() {
 		PacketPlayOutEntityDestroy packet = getDestroyEntityPacket();
-		PacketUtils.sendPacket(player, packet);
+		BukkitPacketUtils.sendPacket(player, packet);
 		enabled = false;
 	}
 	
 	public void respawn() {
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		PacketUtils.sendPacket(player, packet);
+		BukkitPacketUtils.sendPacket(player, packet);
 		enabled = true;
 	}
 	
 	@SuppressWarnings("deprecation")
 	public static PacketPlayOutSpawnEntityLiving getMobPacket(String text, int health, Location loc){
 		
-		PacketPlayOutSpawnEntityLiving mobPacket = new PacketPlayOutSpawnEntityLiving();
-		ClassField clazz = new ClassField(mobPacket);
+		PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving();
+
+		try {
+			ClassUtils.setField(packet, "a", (int)ENTITY_ID);
+			ClassUtils.setField(packet, "b", (byte)EntityType.WITHER.getTypeId());
+			ClassUtils.setField(packet, "c", (int)Math.floor(loc.getBlockX() * 32.0D));
+			ClassUtils.setField(packet, "d", (int)Math.floor(loc.getBlockY() * 32.0D));
+			ClassUtils.setField(packet, "e", (int)Math.floor(loc.getBlockZ() * 32.0D));
+			ClassUtils.setField(packet, "f", (byte)0);
+			ClassUtils.setField(packet, "g", (byte)0);
+			ClassUtils.setField(packet, "h", (byte)0);
+			ClassUtils.setField(packet, "i", (byte)0);
+			ClassUtils.setField(packet, "j", (byte)0);
+			ClassUtils.setField(packet, "k", (byte)0);
+			ClassUtils.setField(packet, "l", getWatcher(text, health));
+		} catch (ReflectionException e) {}
 		
-		clazz.setPublic("a", (int)ENTITY_ID);
-		clazz.setPublic("b", (byte)EntityType.WITHER.getTypeId());
-		clazz.setPublic("c", (int)Math.floor(loc.getBlockX() * 32.0D));
-		clazz.setPublic("d", (int)Math.floor(loc.getBlockY() * 32.0D));
-		clazz.setPublic("e", (int)Math.floor(loc.getBlockZ() * 32.0D));
-		clazz.setPublic("f", (byte)0);
-		clazz.setPublic("g", (byte)0);
-		clazz.setPublic("h", (byte)0);
-		clazz.setPublic("i", (byte)0);
-		clazz.setPublic("j", (byte)0);
-		clazz.setPublic("k", (byte)0);
-		clazz.setPrivate("t", getWatcher(text, health));
-		
-		return (PacketPlayOutSpawnEntityLiving)clazz.getHandle();
+		return packet;
 		
 	}
 	
 	private static PacketPlayOutEntityDestroy getDestroyEntityPacket(){
 		PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy();
-		return (PacketPlayOutEntityDestroy)ClassField.setPublic(packet, "a", new int[]{ENTITY_ID});
+		try {
+			return ClassUtils.setField(packet, "a", new int[]{ENTITY_ID});
+		} catch (ReflectionException e) {
+			return null;
+		}
 	}
 
 	private static DataWatcher getWatcher(String text, int health){

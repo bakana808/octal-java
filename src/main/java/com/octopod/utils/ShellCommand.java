@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.octopod.utils.common.IOUtils;
 import com.octopod.utils.common.StringUtils;
 
 public class ShellCommand {
@@ -90,12 +91,9 @@ public class ShellCommand {
 			
 			@Override
 			public void run() {
+				
 				InputStream binput = new BufferedInputStream(process.getInputStream());
-				try {
-					copy(binput, output);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				copy(binput, output);
 				
 			}
 			
@@ -106,12 +104,10 @@ public class ShellCommand {
 			
 			@Override
 			public void run() {
+				
 				InputStream binput = new BufferedInputStream(process.getErrorStream());
-				try {
-					copy(binput, error);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				copy(binput, error);
+
 			}
 			
 		});
@@ -122,13 +118,10 @@ public class ShellCommand {
 				
 				@Override
 				public void run() {
-					OutputStream boutput = new BufferedOutputStream(process.getOutputStream());
-					try {
-						copy(input, boutput);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 					
+					OutputStream boutput = new BufferedOutputStream(process.getOutputStream());
+					copy(input, boutput);
+
 				}
 				
 			});
@@ -157,42 +150,21 @@ public class ShellCommand {
 
     public int waitFor() throws InterruptedException {
     	int ret = process.waitFor();
-    	if(output != null) {
-    		try {
-    			output.flush();
-    		} catch (IOException e) {}
-    	}
-    	if(error != null) {
-    		try {
-    			error.flush();
-    		} catch (IOException e) {}
-    	}
+    	IOUtils.flushSilent(output);
+    	IOUtils.flushSilent(error);
     	outputThread.join();
     	errorThread.join();
     	return ret;
     }
 	
-	private void copy(InputStream is, OutputStream os) throws IOException {
-        int ret;
+	private void copy(InputStream is, OutputStream os){
         try {
-            while((ret = is.read()) != -1){
-                if(os != null) {
-                	os.write(ret);
-                }
-            }
-            if(os != null) {
-            	os.flush();
-            }
-        } catch (IOException e) {
-        	throw e;
-        }
+        	IOUtils.copy(is, os);
+        } catch (IOException e) {}
         finally {
-            if(os != null) {
-            	os.close();
-            }
-            if(is != null) {
-            	is.close();
-            }
+	        IOUtils.flushSilent(os);
+	        IOUtils.closeSilent(is);
+	        IOUtils.closeSilent(os);
         }
 	}
 

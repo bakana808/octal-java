@@ -1,4 +1,4 @@
-package com.octopod.utils.common;
+package com.octopod.utils;
 
 import java.util.ArrayList;
 import java.util.List;

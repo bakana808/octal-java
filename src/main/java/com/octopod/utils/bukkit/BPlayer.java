@@ -2,14 +2,14 @@ package com.octopod.utils.bukkit;
 
 import org.bukkit.entity.Player;
 
-public class MCPlayer {
+public class BPlayer {
 	
 	 private Player player;
 	 
-	 public MCPlayer(Player p) {player = p;}
+	 public BPlayer(Player p) {player = p;}
 	 
 	 public void sendMessageJSON(String json) {
-		 PacketUtils.sendMessageJSON(player, json);
+		 BukkitPacketUtils.sendMessageJSON(player, json);
 	 }
 
 }

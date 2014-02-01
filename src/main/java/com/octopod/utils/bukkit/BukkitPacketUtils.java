@@ -11,7 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-public class PacketUtils {
+public class BukkitPacketUtils {
 	
 	public static void playSound(Location loc, String sound) {playSound(loc, sound, 1.0f, 1.0f);}
 	public static void playSound(Location loc, String sound, float volume, float pitch) {

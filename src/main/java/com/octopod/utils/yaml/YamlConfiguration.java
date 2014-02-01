@@ -1,4 +1,4 @@
-package com.octopod.utils.common;
+package com.octopod.utils.yaml;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,27 +1,23 @@
 package com.octopod.octolib;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import com.octopod.bukgetapi.Bukget;
-import com.octopod.bukgetapi.BukgetException;
-import com.octopod.bukgetapi.BukgetPlugin;
-import com.octopod.bukgetapi.BukgetPluginVersion;
-import com.octopod.examples.AbstractClass;
-import com.octopod.utils.ShellCommand;
-import com.octopod.utils.common.FileUtil;
-import com.octopod.utils.common.StringUtils;
+import com.octopod.utils.reflection.ClassUtils;
+import com.octopod.utils.reflection.ReflectionException;
 
 public class OctoLib {
+	
+	public class Color {
+		final private String color = "red";
+		public String color() {return color;}
+	}
 
-	public static void main(String args[]) throws RuntimeException {
+	public static void main(String args[]) throws ReflectionException {
 
-		System.out.println(StringUtils.parseArgs("\"a\""));
-
+		Color c = new OctoLib().new Color();
+		
+		ClassUtils.setField(c, "color", "blue");
+		
+		System.out.println(c.color());
+		
 	}
 	
 }

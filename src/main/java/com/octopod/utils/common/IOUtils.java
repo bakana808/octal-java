@@ -6,16 +6,45 @@ import java.io.OutputStream;
 
 public class IOUtils {
 	
-	public static long copyLarge(InputStream input, OutputStream output) throws IOException 
-	{
-	  byte[] buffer = new byte[4096];
-	  long count = 0L;
-	  int n = 0;
-	  while (-1 != (n = input.read(buffer))) {
-	   output.write(buffer, 0, n);
-	   count += n;
-	  }
-	  return count;
+	public static void closeSilent(InputStream input) {
+		if(input != null) {
+			try {
+				input.close();
+			} catch (IOException e) {}
+		}
+	}
+	
+	public static void closeSilent(OutputStream output) {
+		if(output != null) {
+			try {
+				output.close();
+			} catch (IOException e) {}
+		}
+	}
+	
+	public static void flushSilent(OutputStream output) {
+		if(output != null) {
+			try {
+				output.flush();
+			} catch (IOException e) {}
+		}
+	}
+	
+	public static long copy(InputStream input, OutputStream output) throws IOException {
+		return copy(input, output, 4096);
+	}
+	
+	public static long copy(InputStream input, OutputStream output, int bufferSize) throws IOException {
+		byte[] buffer = new byte[bufferSize];
+		int count = 0;
+
+		int len = 0;
+		while ((len = input.read(buffer)) != -1) {
+			output.write(buffer, 0, len);
+			count += len;
+		}
+  
+		return count;
 	}
 
 } 

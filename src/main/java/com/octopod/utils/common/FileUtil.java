@@ -54,7 +54,7 @@ public class FileUtil {
 	public static void write(FileOutputStream os, InputStream is) throws IOException {
 
 		try {
-			IOUtils.copyLarge(is, os); 
+			IOUtils.copy(is, os); 
 			is.close();
 			os.close();
 		} catch (IOException e2) {

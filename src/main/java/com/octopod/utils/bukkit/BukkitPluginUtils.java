@@ -1,4 +1,4 @@
-package com.octopod.utils;
+package com.octopod.utils.bukkit;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -20,7 +20,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.UnknownDependencyException;
 
-public class PluginUtils {
+public class BukkitPluginUtils {
 	
 	public static Plugin[] allPlugins() {
 		return Bukkit.getServer().getPluginManager().getPlugins();

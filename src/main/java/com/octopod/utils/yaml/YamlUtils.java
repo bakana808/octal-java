@@ -1,4 +1,4 @@
-package com.octopod.utils;
+package com.octopod.utils.yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,20 +7,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
+import com.octopod.utils.common.FileUtil;
 import com.octopod.utils.common.IOUtils;
-import com.octopod.utils.common.YamlConfiguration;
+import com.octopod.utils.yaml.YamlConfiguration;
 
-public abstract class ConfigUtils {
+public class YamlUtils {
 	
-	public static ConfigUtils instance;
+	public static YamlUtils instance;
 
-	protected abstract InputStream getResource(String path);
-	
 	public static YamlConfiguration readFromResource(String from) {
 		
-		InputStream resource = instance.getResource(from);
+		InputStream resource = FileUtil.getResourceAsStream(from);
 		YamlConfiguration config = new YamlConfiguration();
 		try {
 			config.load(resource);
@@ -47,7 +44,7 @@ public abstract class ConfigUtils {
 	public static boolean writeFromResource(File to, String from) {
 		
 		FileOutputStream output;
-		InputStream resource = instance.getResource(from);
+		InputStream resource = FileUtil.getResourceAsStream(from);
 		
 		try {
 			output = new FileOutputStream(to);
@@ -60,7 +57,7 @@ public abstract class ConfigUtils {
 		}
 		
 		try {
-			IOUtils.copyLarge(resource, output);
+			IOUtils.copy(resource, output);
 			resource.close();
 			output.close();
 		} catch (IOException e2) {return false;}
