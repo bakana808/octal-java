@@ -1,20 +1,25 @@
 package com.octopod.utils.bukkit;
 
+/**
+ * Last Updated: 1.31.2014
+ * Enumerations that other Chat-related libraries use.
+ * @author Octopod
+ */
 public class ChatEnum {
 	
-	public enum alignment {
+	public enum Alignment {
 		LEFT, RIGHT, CENTER
 	}
 	
-	public enum flags {
+	public enum Flags {
 		UNPRECISE, SKIPRIGHT
 	}
 	
-	public enum clickEvent {
+	public enum ClickEvent {
 		OPEN_URL, OPEN_FILE, RUN_COMMAND, SUGGEST_COMMAND
 	}
 	
-	public enum hoverEvent {
+	public enum HoverEvent {
 		SHOW_TEXT, SHOW_ACHIEVEMENT, SHOW_ITEM
 	}
 
