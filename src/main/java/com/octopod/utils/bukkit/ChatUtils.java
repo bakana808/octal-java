@@ -10,9 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONValue;
 
 /**
- * Last Updated: 1.23.2014
- * ChatBuilder to build messages for Minecraft's new JSON chat.
- * Utitlizes "method chaining."
+ * Last Updated: 1.31.2014
+ * ChatUtils that provide tools relating to MC's chat and Chat Libraries.
  * @author Octopod
  */
 public class ChatUtils {
@@ -206,7 +205,7 @@ public class ChatUtils {
 	     */
 	
 	@Deprecated
-    static public String block(String text, int toWidth, ChatEnum.alignment alignment, ChatEnum.flags... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
+    static public String block(String text, int toWidth, ChatEnum.Alignment alignment, ChatEnum.Flags... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
     
 	    /**
 	     * Creates a block of text with a variable width. Useful for aligning text into columns on multiple lines.
@@ -219,18 +218,18 @@ public class ChatUtils {
 	     */
     
 	@Deprecated
-    static public String block(String text, int toWidth, ChatEnum.alignment alignment, String emptyFiller, ChatEnum.flags... flag_array){
+    static public String block(String text, int toWidth, ChatEnum.Alignment alignment, String emptyFiller, ChatEnum.Flags... flag_array){
     	
     	boolean precise = true;
     	boolean skipRightFiller = false;
     	
-    	List<ChatEnum.flags> flags = new ArrayList<ChatEnum.flags>();
+    	List<ChatEnum.Flags> flags = new ArrayList<ChatEnum.Flags>();
     	
-    	for(ChatEnum.flags flag: flag_array)
+    	for(ChatEnum.Flags flag: flag_array)
     		flags.add(flag);
     	
-    	if(flags.contains(ChatEnum.flags.UNPRECISE)) precise = false;
-    	if(flags.contains(ChatEnum.flags.SKIPRIGHT)) skipRightFiller = true;
+    	if(flags.contains(ChatEnum.Flags.UNPRECISE)) precise = false;
+    	if(flags.contains(ChatEnum.Flags.SKIPRIGHT)) skipRightFiller = true;
         
         text = cut(text, toWidth, false) + ChatColor.RESET;
 
@@ -249,7 +248,7 @@ public class ChatUtils {
                 fill = new String[]{""};
         }
         
-        if(!skipRightFiller || alignment != ChatEnum.alignment.LEFT)
+        if(!skipRightFiller || alignment != ChatEnum.Alignment.LEFT)
 	        for(int i = 0; i < extra.length; i++) {
 	        	if((!skipRightFiller && i == 1) || i == 0)
 	        		fill[i] += filler(extra[i], precise, emptyFiller);
@@ -273,10 +272,10 @@ public class ChatUtils {
         
     }
 
-    final static String FILLER_COLOR = ChatColor.DARK_GRAY + "";
+    final static ChatColor FILLER_COLOR = ChatColor.DARK_GRAY;
     final static String FILLER_2PX = "\u2019"; //Remember, for bolded characters: just add 1 to the normal width!
 	
-    static public String filler(int width) {
+    static public ChatElement filler(int width) {
     	return filler(width, true, " ");
     }
     
@@ -288,7 +287,7 @@ public class ChatUtils {
 	     * @return The filler as a string. 
 	     */
     
-    static public String filler(int width, boolean precise, String emptyFiller) {
+    static public String legacyFiller(int width, boolean precise, String emptyFiller) {
     	
     	final int emptyFillerWidth = width(emptyFiller);
         StringBuilder filler = new StringBuilder();
@@ -312,7 +311,7 @@ public class ChatUtils {
         case 3:
             if(emptyFillerWidth == 3) {filler.append((String)emptyFiller); break;}
             if(!precise) break;
-            filler.append(FILLER_COLOR + ChatColor.BOLD + FILLER_2PX + ChatColor.RESET);
+            filler.append(FILLER_COLOR + "" + ChatColor.BOLD + FILLER_2PX + ChatColor.RESET);
             break;
         case 2:
             if(emptyFillerWidth == 2) {filler.append((String)emptyFiller); break;}
@@ -323,6 +322,11 @@ public class ChatUtils {
 
         return filler.toString();
         
+    }
+    
+    static public ChatElement filler(int width, boolean precise, String emptyFiller) {
+    	ChatElement filler = new ChatElement(legacyFiller(width, precise, emptyFiller));
+    	return filler.color(FILLER_COLOR);
     }
     
 	    /**
