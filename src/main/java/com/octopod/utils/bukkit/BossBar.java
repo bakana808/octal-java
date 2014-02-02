@@ -27,19 +27,20 @@ public class BossBar {
 		BukkitPacketUtils.sendPacket(player, packet);
 	}
 	
-	public void setBoth(String text, int health) {
+	public void setMeta(String text, int health) {
+		text = text.equals("") ? " " : text; //Turns the string into a space if empty
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
 		BukkitPacketUtils.sendPacket(player, packet);		
+		this.text = text;
+		this.health = health;
 	}
 	
 	public void setText(String text) {
-		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		BukkitPacketUtils.sendPacket(player, packet);		
+		setMeta(text, health);
 	}
 	
 	public void setHealth(int health) {
-		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		BukkitPacketUtils.sendPacket(player, packet);		
+		setMeta(text, health);
 	}	
 	
 	public void destroy() {
