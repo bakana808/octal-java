@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.simple.JSONValue;
-import org.yaml.snakeyaml.Yaml;
 
-import com.google.gson.Gson;
 import com.octopod.utils.abstraction.ConfigList;
 import com.octopod.utils.abstraction.ConfigObject;
 
