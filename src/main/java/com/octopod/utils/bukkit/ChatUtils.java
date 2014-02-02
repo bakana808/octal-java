@@ -5,12 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.server.v1_7_R1.ChatSerializer;
+import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
+
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONValue;
 
 /**
- * Last Updated: 1.31.2014
+ * Last Updated: 2.1.2014
  * ChatUtils that provide tools relating to MC's chat and Chat Libraries.
  * @author Octopod
  */
@@ -20,7 +25,7 @@ public class ChatUtils {
 		LEFT, RIGHT, CENTER
 	}
 	
-	public enum Flags {
+	public enum Flag {
 		UNPRECISE, SKIPRIGHT
 	}
 	
@@ -31,29 +36,44 @@ public class ChatUtils {
 	public enum HoverEvent {
 		SHOW_TEXT, SHOW_ACHIEVEMENT, SHOW_ITEM
 	}
+	
+	public enum Color {
+		BLACK('0'), DARK_BLUE('1'), DARK_GREEN('2'), DARK_AQUA('3'), DARK_RED('4'), DARK_PURPLE('5'), 
+		GOLD('6'), GRAY('7'), DARK_GRAY('8'), BLUE('9'), GREEN('a'), AQUA('b'), RED('c'), LIGHT_PURPLE('d'), YELLOW('e'), WHITE('f');
+		//RESET
+		Character character = null;
+		private static Map<Character, Color> map = new HashMap<Character, Color>();
+		private Color(char c) {character = c;}
+		public char getChar() {return character;}
+		static public Color getByChar(char c) {return map.get(c);}
+		static {
+			for(Color c: values())
+				map.put(c.character, c);
+		}
+	}
+	
+	public enum Format {
+		OBFUSCATED('k'), BOLD('l'), STRIKETHROUGH('m'), UNDERLINED('n'), ITALIC('o');
+		Character character = null;
+		private static Map<Character, Format> map = new HashMap<Character, Format>();
+		private Format(char c) {character = c;}
+		public char getChar() {return character;}
+		static public Format getByChar(char c) {return map.get(c);}
+		static {
+			for(Format f: values())
+				map.put(f.character, f);
+		}
+	}
+	
+	public static void send(Player target, ChatBuilder builder) {
+		send(target, builder.toString());
+	}
+	
+	public static void send(Player target, String json) {
+		PacketPlayOutChat packet = new PacketPlayOutChat(ChatSerializer.a(json));
+		((CraftPlayer)target).getHandle().playerConnection.sendPacket(packet);	
+	}
 
-	public static ChatColor keyToChatColor(String color) throws IllegalArgumentException {
-		switch(color.toUpperCase()) {
-			case "obfuscated":
-				return ChatColor.MAGIC;
-			case "underlined":
-				return ChatColor.UNDERLINE;
-			default:
-				return ChatColor.valueOf(color.toUpperCase());
-		}
-	}
-	
-	public static String keyFromChatColor(ChatColor color) {
-		switch(color) {
-			case MAGIC:
-				return "obfuscated";
-			case UNDERLINE:
-				return "underlined";
-			default:
-				return color.name().toLowerCase();
-		}
-	}
-	
 	public static String toLegacy(ChatBuilder builder) {return toLegacy(builder, '\u00A7');}
 	
 	/**
@@ -69,8 +89,8 @@ public class ChatUtils {
 		
 		for(ChatElement e: builder.getChatElements()) {
 			sb.append(colorCode + "" + e.getColor().getChar());
-			for(ChatColor style: e.getFormats())
-				sb.append(colorCode + "" + style.getChar());
+			for(Format format: e.getFormats())
+				sb.append(colorCode + "" + format.getChar());
 			sb.append(e.getText());
 		}
 		
@@ -91,8 +111,8 @@ public class ChatUtils {
 
 		StringBuilder text = new StringBuilder();
 		boolean nextIsColorCode = false;
-		ChatColor lastColor = ChatColor.WHITE;
-		List<ChatColor> styles = new ArrayList<ChatColor>();
+		Color lastColor = Color.WHITE;
+		List<Format> formats = new ArrayList<Format>();
 
 		for(char c: message.toCharArray()) {
 			
@@ -103,18 +123,17 @@ public class ChatUtils {
 			
 			if(nextIsColorCode) {
 				nextIsColorCode = false;
-				ChatColor color = ChatColor.getByChar(c);
-				if(color != null) {
-					if(color.isColor()) {
-						//Push new element
-						if(!text.toString().equals("")) builder.append(text.toString()).color(lastColor).format(styles.toArray(new ChatColor[styles.size()]));
-						//Reset variables
-						text = new StringBuilder();
-						lastColor = color;
-						styles = new ArrayList<ChatColor>();
-					}
-					if(color.isFormat())
-						styles.add(color);
+				Color color = Color.getByChar(c);
+				Format format = Format.getByChar(c);
+				if(color != null && format == null) { //This is a color
+					//Push new element
+					if(!text.toString().equals("")) builder.append(text.toString()).color(lastColor).format(formats.toArray(new Format[formats.size()]));
+					//Reset variables
+					text = new StringBuilder();
+					lastColor = color;
+					formats = new ArrayList<Format>();
+				} else if (color == null && format != null) { //This is a format
+					formats.add(format);
 				}
 				continue;
 			}
@@ -123,7 +142,7 @@ public class ChatUtils {
 			
 		}
 		
-		builder.append(text.toString()).color(lastColor).format(styles.toArray(new ChatColor[styles.size()]));
+		builder.append(text.toString()).color(lastColor).format(formats.toArray(new Format[formats.size()]));
 		
 		return builder;
 	}
@@ -221,7 +240,7 @@ public class ChatUtils {
 	     */
 	
 	@Deprecated
-    static public String block(String text, int toWidth, Alignment alignment, Flags... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
+    static public String block(String text, int toWidth, Alignment alignment, Flag... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
     
 	    /**
 	     * Creates a block of text with a variable width. Useful for aligning text into columns on multiple lines.
@@ -234,18 +253,18 @@ public class ChatUtils {
 	     */
     
 	@Deprecated
-    static public String block(String text, int toWidth, Alignment alignment, String emptyFiller, Flags... flag_array){
+    static public String block(String text, int toWidth, Alignment alignment, String emptyFiller, Flag... flag_array){
     	
     	boolean precise = true;
     	boolean skipRightFiller = false;
     	
-    	List<Flags> flags = new ArrayList<Flags>();
+    	List<Flag> flags = new ArrayList<Flag>();
     	
-    	for(Flags flag: flag_array)
+    	for(Flag flag: flag_array)
     		flags.add(flag);
     	
-    	if(flags.contains(Flags.UNPRECISE)) precise = false;
-    	if(flags.contains(Flags.SKIPRIGHT)) skipRightFiller = true;
+    	if(flags.contains(Flag.UNPRECISE)) precise = false;
+    	if(flags.contains(Flag.SKIPRIGHT)) skipRightFiller = true;
         
         text = cut(text, toWidth, false) + ChatColor.RESET;
 
@@ -288,7 +307,7 @@ public class ChatUtils {
         
     }
 
-    final static ChatColor FILLER_COLOR = ChatColor.DARK_GRAY;
+    final static Color FILLER_COLOR = Color.DARK_GRAY;
     final static String FILLER_2PX = "\u2019"; //Remember, for bolded characters: just add 1 to the normal width!
 	
     static public ChatElement filler(int width) {

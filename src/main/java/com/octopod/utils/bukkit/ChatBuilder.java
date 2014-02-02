@@ -5,21 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.v1_7_R1.ChatSerializer;
-import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
-
-import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONValue;
 
 import com.octopod.utils.bukkit.ChatUtils.ClickEvent;
+import com.octopod.utils.bukkit.ChatUtils.Color;
+import com.octopod.utils.bukkit.ChatUtils.Format;
 import com.octopod.utils.bukkit.ChatUtils.HoverEvent;
 import com.octopod.utils.bukkit.ChatUtils.Alignment;
 
 /**
- * Last Updated: 1.31.2014
+ * Last Updated: 2.1.2014
  * ChatBuilder to build messages for Minecraft's new JSON chat.
  * Utitlizes "method chaining."
  * @author Octopod
@@ -40,22 +37,19 @@ public class ChatBuilder {
 	/**
 	 * The total amount of elements.
 	 * @return size of elements.
-	 */					
-
+	 */	
 	public int size() {return allElements.size();}
 	
 	/**
 	 * Gets the list of all ChatElements.
 	 * @return ArrayList of ChatElements.
-	 */					
-	
+	 */				
 	public List<ChatElement> getChatElements() {return allElements;}
 	
 	/**
 	 * Gets the last ChatElement
 	 * @return The last ChatElement.
 	 */			
-	
 	public ChatElement getLastElement() {
 		return allElements.get(allElements.size() - 1);
 	}
@@ -64,7 +58,6 @@ public class ChatBuilder {
 	 * Gets the currently selected ChatElement.
 	 * @return The currently selected ChatElement.
 	 */		
-	
 	public ChatElement getCurrentElement() {
 		return currentElement;
 	}
@@ -73,7 +66,6 @@ public class ChatBuilder {
 	 * Gets the ChatElement at the specified index. Returns null if out of bounds.
 	 * @return The ChatElement from the index, or null if not found.
 	 */		
-	
 	public ChatElement getElementAt(int i) {
 		try {
 			return allElements.get(i);
@@ -86,7 +78,6 @@ public class ChatBuilder {
 	 * Manually selects the current ChatElement.
 	 * @param index The index to select.
 	 */	
-	
 	public ChatBuilder select(int index) {
 		if(inRange(index)) currentElement = allElements.get(index);
 		return this;
@@ -97,7 +88,6 @@ public class ChatBuilder {
 	 * It will also select the last element.
 	 * @param message The message to push.
 	 */		
-	
 	public ChatBuilder append(String message) {
 		allElements.add(new ChatElement(message));
 		return select(size() - 1);
@@ -108,7 +98,6 @@ public class ChatBuilder {
 	 * It will also select the last element.
 	 * @param element The ChatElement to push.
 	 */		
-	
 	public ChatBuilder append(ChatElement element) {
 		allElements.add(element);
 		return select(size() - 1);
@@ -123,14 +112,9 @@ public class ChatBuilder {
 	 * It will also select the last element.
 	 * @param width The width of the filler.
 	 */		
-	
 	public ChatBuilder appendFiller(int width) { 
 		allElements.add(ChatUtils.filler(width));
 		return select(size() - 1);
-	}
-	
-	public ChatBuilder appendBlock(ChatElement element, int width) {
-		return appendBlock(element, width, Alignment.LEFT);
 	}
 	
 	/**
@@ -143,32 +127,41 @@ public class ChatBuilder {
 	 * @param element The element to use as base text.
 	 * @param width The width of the block of text.
 	 * @param alignment The alignment to use (Left, Right, Center)
-	 */		
-	
+	 */	
 	public ChatBuilder appendBlock(ChatElement element, int width, Alignment alignment) {
 		element.text(ChatUtils.cut(element.getText(), width));
-		return append(element).fill(width);
+		return append(element).fit(width);
 	}	
 	
-	public ChatBuilder fill(int width) {
+	public ChatBuilder appendBlock(ChatElement element, int width) {
+		return appendBlock(element, width, Alignment.LEFT);
+	}	
+	
+	/**
+	 * Fits the current element to be size 'width'. 
+	 * If the width of the text from the current element is longer than 'width', some trunctation might occur.
+	 * @param width the width to fit to
+	 */
+	public ChatBuilder fit(int width) {
 		currentElement.text(ChatUtils.cut(currentElement.getText(), width));
 		int fillerWidth = width - ChatUtils.width(currentElement.getText());
 		currentElement.extra(ChatUtils.filler(fillerWidth));
 		return this;
 	}
 	
+	/**
+	 * Returns the width of the current element in pixels, according to Minecraft's default font.
+	 * @return the width of the current element, in pixels.
+	 */
 	public int width() {
 		return ChatUtils.width(currentElement.getText());
 	}
-	
-
 	
 	/**
 	 * Sets the hover event of the currently selected ChatElement.
 	 * @param event The ChatHoverEvent to use.
 	 * @param value The value, as a string.
 	 */
-	
 	public ChatBuilder click(ClickEvent event, String value) {
 		if(exists())
 			currentElement.click(event, value);
@@ -196,7 +189,6 @@ public class ChatBuilder {
 	 * @param event The ChatHoverEvent to use.
 	 * @param value The value, as a string.
 	 */
-		
 	public ChatBuilder hover(HoverEvent event, String value) {
 		if(exists())
 			currentElement.hover(event, value);
@@ -219,8 +211,7 @@ public class ChatBuilder {
 	 * Change the color of the currently selected ChatElement. Non-color ChatColors will be ignored.
 	 * @param ChatColor The new color of the current element.
 	 */	
-		
-	public ChatBuilder color(ChatColor c) {
+	public ChatBuilder color(Color c) {
 		if(exists())
 			currentElement.color(c);
 		return this;
@@ -230,36 +221,32 @@ public class ChatBuilder {
 	 * Apply formats to the currently selected ChatElement. Non-format ChatColors will not apply.
 	 * @param ChatColor... The formats to apply to the current element.
 	 */
-	
-	public ChatBuilder format(ChatColor... formats) {
+	public ChatBuilder format(Format... formats) {
 		if(exists())
-			for(ChatColor format: formats) currentElement.format(format);
+			currentElement.format(formats);
 		return this;
 	}
 	
 	//Shortcuts for format()
 	
-	public ChatBuilder bold() 			{return format(ChatColor.BOLD);}
-	public ChatBuilder italic() 		{return format(ChatColor.ITALIC);}
-	public ChatBuilder underline() 		{return format(ChatColor.UNDERLINE);}
-	public ChatBuilder strikethrough() 	{return format(ChatColor.STRIKETHROUGH);}
-	public ChatBuilder obfuscate() 		{return format(ChatColor.MAGIC);}
+	public ChatBuilder bold() 			{return format(Format.BOLD);}
+	public ChatBuilder italic() 		{return format(Format.ITALIC);}
+	public ChatBuilder underline() 		{return format(Format.UNDERLINED);}
+	public ChatBuilder strikethrough() 	{return format(Format.STRIKETHROUGH);}
+	public ChatBuilder obfuscate() 		{return format(Format.OBFUSCATED);}
 	
 	/**
 	 * Sends the player this object represented as a chat message.
 	 * @param player The player that the message will be sent to.
 	 */
-	
 	public void send(Player player) {
-		PacketPlayOutChat packet = new PacketPlayOutChat(ChatSerializer.a(this.toString()));
-		((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);		
+		ChatUtils.send(player, this);
 	}
 	
 	/**
 	 * Returns this object as a legacy chat string. Actually just a shortcut to the static toLegacy method.
 	 * @return Legacy chat string
 	 */
-	
 	public String toLegacy() {
 		return ChatUtils.toLegacy(this);
 	}
