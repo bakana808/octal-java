@@ -1,4 +1,4 @@
-package com.octopod.bukgetapi;
+package com.octopod.utils.bukgetapi;
 
 public class BukgetException extends Exception {
 

@@ -1,4 +1,4 @@
-package com.octopod.bukgetapi;
+package com.octopod.utils.bukgetapi;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
