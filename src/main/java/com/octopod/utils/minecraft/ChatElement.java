@@ -1,4 +1,4 @@
-package com.octopod.utils.bukkit;
+package com.octopod.utils.minecraft;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.json.simple.JSONValue;
 
-import com.octopod.utils.bukkit.ChatUtils.ClickEvent;
-import com.octopod.utils.bukkit.ChatUtils.Color;
-import com.octopod.utils.bukkit.ChatUtils.Format;
-import com.octopod.utils.bukkit.ChatUtils.HoverEvent;
+import com.octopod.utils.minecraft.ChatUtils.ClickEvent;
+import com.octopod.utils.minecraft.ChatUtils.Color;
+import com.octopod.utils.minecraft.ChatUtils.Format;
+import com.octopod.utils.minecraft.ChatUtils.HoverEvent;
 
 /**
  * Last Updated: 2.1.2014

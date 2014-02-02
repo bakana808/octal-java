@@ -1,19 +1,18 @@
-package com.octopod.utils.bukkit;
+package com.octopod.utils.minecraft;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONValue;
 
-import com.octopod.utils.bukkit.ChatUtils.ClickEvent;
-import com.octopod.utils.bukkit.ChatUtils.Color;
-import com.octopod.utils.bukkit.ChatUtils.Format;
-import com.octopod.utils.bukkit.ChatUtils.HoverEvent;
-import com.octopod.utils.bukkit.ChatUtils.Alignment;
+import com.octopod.utils.abstraction.MCPlayer;
+import com.octopod.utils.minecraft.ChatUtils.Alignment;
+import com.octopod.utils.minecraft.ChatUtils.ClickEvent;
+import com.octopod.utils.minecraft.ChatUtils.Color;
+import com.octopod.utils.minecraft.ChatUtils.Format;
+import com.octopod.utils.minecraft.ChatUtils.HoverEvent;
 
 /**
  * Last Updated: 2.1.2014
@@ -207,8 +206,8 @@ public class ChatBuilder {
 			return hover(HoverEvent.SHOW_ACHIEVEMENT, name);
 		}
 		
-		public ChatBuilder item(ItemStack item) {
-			return hover(HoverEvent.SHOW_ITEM, ChatUtils.itemtoJSON(item));
+		public ChatBuilder item(String json) {
+			return hover(HoverEvent.SHOW_ITEM, json);
 		}
 		
 	/**
@@ -243,7 +242,7 @@ public class ChatBuilder {
 	 * Sends the player this object represented as a chat message.
 	 * @param player The player that the message will be sent to.
 	 */
-	public void send(Player player) {
+	public void send(MCPlayer player) {
 		ChatUtils.send(player, this);
 	}
 	

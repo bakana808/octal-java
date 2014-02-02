@@ -1,18 +1,11 @@
-package com.octopod.utils.bukkit;
+package com.octopod.utils.minecraft;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.v1_7_R1.ChatSerializer;
-import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
-
-import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.json.simple.JSONValue;
+import com.octopod.utils.abstraction.MCPlayer;
 
 /**
  * Last Updated: 2.1.2014
@@ -39,8 +32,8 @@ public class ChatUtils {
 	
 	public enum Color {
 		BLACK('0'), DARK_BLUE('1'), DARK_GREEN('2'), DARK_AQUA('3'), DARK_RED('4'), DARK_PURPLE('5'), 
-		GOLD('6'), GRAY('7'), DARK_GRAY('8'), BLUE('9'), GREEN('a'), AQUA('b'), RED('c'), LIGHT_PURPLE('d'), YELLOW('e'), WHITE('f');
-		//RESET
+		GOLD('6'), GRAY('7'), DARK_GRAY('8'), BLUE('9'), GREEN('a'), AQUA('b'), RED('c'), LIGHT_PURPLE('d'), YELLOW('e'), WHITE('f'),
+		RESET('r');
 		Character character = null;
 		private static Map<Character, Color> map = new HashMap<Character, Color>();
 		private Color(char c) {character = c;}
@@ -50,6 +43,7 @@ public class ChatUtils {
 			for(Color c: values())
 				map.put(c.character, c);
 		}
+		public String toString() {return '\u00A7' + "" + character;}
 	}
 	
 	public enum Format {
@@ -63,15 +57,15 @@ public class ChatUtils {
 			for(Format f: values())
 				map.put(f.character, f);
 		}
+		public String toString() {return '\u00A7' + "" + character;}
 	}
 	
-	public static void send(Player target, ChatBuilder builder) {
+	public static void send(MCPlayer target, ChatBuilder builder) {
 		send(target, builder.toString());
 	}
 	
-	public static void send(Player target, String json) {
-		PacketPlayOutChat packet = new PacketPlayOutChat(ChatSerializer.a(json));
-		((CraftPlayer)target).getHandle().playerConnection.sendPacket(packet);	
+	public static void send(MCPlayer target, String json) {
+		target.sendJsonMessage(json);
 	}
 
 	public static String toLegacy(ChatBuilder builder) {return toLegacy(builder, '\u00A7');}
@@ -168,6 +162,7 @@ public class ChatUtils {
 		
 	}
 	
+	/*
 	@SuppressWarnings("deprecation")
 	public static String itemtoJSON(ItemStack item) {
 		
@@ -189,6 +184,7 @@ public class ChatUtils {
 		return JSONValue.toJSONString(json);
 		
 	}
+	*/
 	
     /**
      * Returns the width of the inserted character, according to Minecraft's default chat font (in pixels)
@@ -266,7 +262,7 @@ public class ChatUtils {
     	if(flags.contains(Flag.UNPRECISE)) precise = false;
     	if(flags.contains(Flag.SKIPRIGHT)) skipRightFiller = true;
         
-        text = cut(text, toWidth, false) + ChatColor.RESET;
+        text = cut(text, toWidth, false) + Color.RESET;
 
         //The total width (in pixels) needed to fill
         final int totalFillerWidth = toWidth - width(text);
@@ -303,7 +299,7 @@ public class ChatUtils {
                 break;
         }
         
-        return text + ChatColor.RESET;
+        return text + Color.RESET;
         
     }
 
@@ -337,7 +333,7 @@ public class ChatUtils {
             if(emptyFillerWidth == 6) {filler.append((String)emptyFiller); break;}
         case 5:
             if(emptyFillerWidth == 5) {filler.append((String)emptyFiller); break;}
-            filler.append(ChatColor.BOLD + " " + ChatColor.RESET);
+            filler.append(Format.BOLD + " " + Color.RESET);
             break;
         case 4:
             if(emptyFillerWidth == 4) {filler.append((String)emptyFiller); break;}
@@ -346,12 +342,12 @@ public class ChatUtils {
         case 3:
             if(emptyFillerWidth == 3) {filler.append((String)emptyFiller); break;}
             if(!precise) break;
-            filler.append(FILLER_COLOR + "" + ChatColor.BOLD + FILLER_2PX + ChatColor.RESET);
+            filler.append(FILLER_COLOR + "" + Format.BOLD + FILLER_2PX + Color.RESET);
             break;
         case 2:
             if(emptyFillerWidth == 2) {filler.append((String)emptyFiller); break;}
             if(!precise) break;
-            filler.append(FILLER_COLOR + FILLER_2PX + ChatColor.RESET);
+            filler.append(FILLER_COLOR + FILLER_2PX + Color.RESET);
             break;
         }       	
 
