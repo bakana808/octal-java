@@ -19,9 +19,7 @@ import com.octopod.utils.common.IOUtils;
 public class FileUtil {
 
 	public static InputStream getResourceAsStream(String path) {
-		if(String.valueOf(path.charAt(0)).equals("/")) 
-			path = "/" + path;
-		return FileUtil.class.getResourceAsStream(path);
+		return FileUtil.class.getClassLoader().getResourceAsStream(path);
 	}
 	
 	public static void write(File file, String contents) throws IOException {
