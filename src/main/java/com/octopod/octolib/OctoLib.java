@@ -1,23 +1,25 @@
 package com.octopod.octolib;
 
+import net.minecraft.server.v1_7_R1.ChatSerializer;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.octopod.utils.bukkit.ChatBuilder;
 import com.octopod.utils.reflection.ClassUtils;
 import com.octopod.utils.reflection.ReflectionException;
 
 public class OctoLib {
-	
-	public class Color {
-		final private String color = "red";
-		public String color() {return color;}
-	}
 
 	public static void main(String args[]) throws ReflectionException {
 
-		Color c = new OctoLib().new Color();
+		ChatBuilder cb = new ChatBuilder();
 		
-		ClassUtils.setField(c, "color", "blue");
+		cb.append("hello").tooltip("tip");
 		
-		System.out.println(c.color());
+		System.out.println(cb);
 		
+		System.out.println(ChatSerializer.a(cb.toString()));
+		 
 	}
 	
 }

@@ -199,6 +199,10 @@ public class ChatBuilder {
 			return hover(HoverEvent.SHOW_TEXT, text);
 		}
 		
+		public ChatBuilder tooltip(ChatBuilder builder) {
+			return hover(HoverEvent.SHOW_TEXT, builder.toLegacy());
+		}
+		
 		public ChatBuilder achievement(String name) {
 			return hover(HoverEvent.SHOW_ACHIEVEMENT, name);
 		}

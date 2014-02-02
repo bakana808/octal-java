@@ -98,7 +98,7 @@ public class ChatUtils {
 		
 	}
 
-	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '&');}
+	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
 	
 	/**
 	 * Converts Minecraft legacy chat to a ChatBuilder object.

@@ -160,7 +160,9 @@ public class ChatElement {
 			json.put("text", text);
 		}
 		
-		json.put("extra", extras);
+		if(extras.size() > 0) {
+			json.put("extra", extras);
+		}
 
 		if(clickEvent != null) {
 			Map click = new HashMap();
