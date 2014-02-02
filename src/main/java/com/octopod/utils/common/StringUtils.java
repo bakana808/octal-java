@@ -77,6 +77,15 @@ public class StringUtils {
         
         //Just some regex functions. 
         
+        public static String reg_replace(String string, String regex, String replacement) {
+
+    		Pattern pattern = Pattern.compile(regex);
+    		Matcher matcher = pattern.matcher(string);
+
+    		return matcher.replaceAll(replacement);
+
+        }
+        
         public static String[] reg_match(String string, String regex) {
 
         	List<String> matches = new ArrayList<String>();
