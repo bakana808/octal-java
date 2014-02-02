@@ -14,13 +14,13 @@ import com.octopod.utils.reflection.ReflectionException;
 public class BossBar {
 	
 	Player player;
-	String text = "";
-	int health = 300;
+	String text = " ";
+	int health = 200;
 	boolean enabled = true;
 	
 	static int ENTITY_ID = 1234;	
 	
-	public BossBar(Player player) {this(player, "", 300);}
+	public BossBar(Player player) {this(player, " ", 200);}
 	public BossBar(Player player, String text, int health) {
 		this.player = player; 
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
@@ -61,9 +61,9 @@ public class BossBar {
 
 		try {
 			ClassUtils.setField(packet, "a", (int)ENTITY_ID);
-			ClassUtils.setField(packet, "b", (byte)EntityType.WITHER.getTypeId());
+			ClassUtils.setField(packet, "b", (byte)EntityType.ENDER_DRAGON.getTypeId());
 			ClassUtils.setField(packet, "c", (int)Math.floor(loc.getBlockX() * 32.0D));
-			ClassUtils.setField(packet, "d", (int)Math.floor(loc.getBlockY() * 32.0D));
+			ClassUtils.setField(packet, "d", (int)-500);
 			ClassUtils.setField(packet, "e", (int)Math.floor(loc.getBlockZ() * 32.0D));
 			ClassUtils.setField(packet, "f", (byte)0);
 			ClassUtils.setField(packet, "g", (byte)0);
