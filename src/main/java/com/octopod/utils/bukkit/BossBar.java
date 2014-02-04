@@ -26,13 +26,15 @@ public class BossBar {
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
 		BukkitPacketUtils.sendPacket(player, packet);
 	}
-	
+
 	public void setMeta(String text, int health) {
 		text = text.equals("") ? " " : text; //Turns the string into a space if empty
-		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
-		BukkitPacketUtils.sendPacket(player, packet);		
 		this.text = text;
 		this.health = health;
+		if(enabled) {
+			PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
+			BukkitPacketUtils.sendPacket(player, packet);		
+		}
 	}
 	
 	public void setText(String text) {

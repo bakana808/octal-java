@@ -282,7 +282,7 @@ public class ChatUtils {
         if(!skipRightFiller || alignment != Alignment.LEFT)
 	        for(int i = 0; i < extra.length; i++) {
 	        	if((!skipRightFiller && i == 1) || i == 0)
-	        		fill[i] += filler(extra[i], precise, emptyFiller);
+	        		fill[i] += legacyFiller(extra[i], precise, emptyFiller);
 	        }
 
         switch(alignment){

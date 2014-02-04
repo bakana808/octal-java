@@ -1,8 +1,4 @@
 
-#======================================================================================================#
-#	Command Handler (accepts any string as command label)
-#======================================================================================================#
-
 _cmd_setMode(false)
 
 bind(player_command, array(id: 'event_command'), null, @event,
@@ -92,12 +88,12 @@ _creg('/sudo', closure(
 
 ), '*')
 
-_creg('!eval', closure(
+creg('!eval', closure(
 		if(player() != 'TheOctopod', die())
 		
-		@section = array_implode(@cArgs)
+		@section = array_implode(@args)
 		
-		broadcast(color(8) . '< ' . color(7) . array_implode(@cArgs))
+		broadcast(color(8) . '< ' . color(7) . array_implode(@args))
 		
 		if(!import('octolib.eval.multiline') && @section == '>>>',
 			export('octolib.eval.multiline', true)
