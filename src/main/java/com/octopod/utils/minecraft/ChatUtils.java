@@ -15,7 +15,18 @@ import com.octopod.utils.abstraction.MCPlayer;
 public class ChatUtils {
 	
 	public enum Alignment {
-		LEFT, RIGHT, CENTER
+		LEFT, RIGHT, CENTER;
+		public Alignment fromCode(int n) {
+			switch(n) {
+				case 0:
+				default:
+					return LEFT;
+				case 1:
+					return RIGHT;
+				case 2:
+					return CENTER;
+			}
+		}
 	}
 	
 	public enum Flag {
@@ -224,17 +235,7 @@ public class ChatUtils {
 	        default: return 6;
 	    }
 	}
-    
-	    /**
-	     * Creates a block of text with a variable width. Useful for aligning text into columns on multiple lines.
-	     * Use ChatEnums.alignments and ChatEnums.flags for avaliable alignments and flags.
-	     * @param text The string to insert
-	     * @param toWidth The width to fit the text to in pixels. (Will cut the text if toWidth is shorter than it)
-	     * @param alignment Which way to align the text. (Left / Right / Center)
-	     * @param flag_array A list of flags to modify the return string
-	     * @return The text fitted to toWidth.
-	     */
-	
+
 	@Deprecated
     static public String block(String text, int toWidth, Alignment alignment, Flag... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
     

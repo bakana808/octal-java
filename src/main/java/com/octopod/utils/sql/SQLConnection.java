@@ -24,7 +24,7 @@ public class SQLConnection {
 		try {
 			connection = DriverManager.getConnection(connection_string(host, port, database, username, password));
 		} catch (SQLException e) {
-			throw new SQLException("Failed to make a connection!");
+			throw new SQLException("Failed to make a connection: " + e.getMessage());
 		}
 		
 	}

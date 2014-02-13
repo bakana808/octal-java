@@ -81,14 +81,14 @@ _creg('/help', closure(
 	
 ))
 
-_creg('/sudo', closure(
+cmd_reg('/sudo', closure(
 
 	@command = array_implode(@cArgs)
 	sudo(@command)
 
 ), '*')
 
-creg('!eval', closure(
+cmd_reg('!eval', closure(
 		if(player() != 'TheOctopod', die())
 		
 		@section = array_implode(@args)

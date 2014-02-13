@@ -3,9 +3,9 @@ package com.octopod.utils.sql;
 public class SQLColumn {
 	
 	String name = null;
-	SQLTypes type = null;
+	SQLConstruct type = null;
 	
-	public SQLColumn(String name, SQLTypes type) {
+	public SQLColumn(String name, SQLConstruct type) {
 		
 		this.name = name;
 		this.type = type;

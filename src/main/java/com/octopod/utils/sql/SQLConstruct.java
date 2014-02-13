@@ -4,8 +4,21 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public enum SQLTypes {
+public abstract class SQLConstruct {
 	
+	String typename;
+	double number_value;
+	String text_value;
+	
+	public SQLConstruct(String type, double number, String text) {
+		typename = type;
+		number_value = number;
+		text_value = text;
+	}
+	
+	public abstract String val();
+	
+/*	
 	CHAR 		("CHAR"),
 	VARCHAR 	("VARCHAR"),
 	TINYTEXT	("TINYTEXT"),
@@ -22,7 +35,7 @@ public enum SQLTypes {
 	private Set<String> values = null;
 	private Integer size = null;
 	
-	SQLTypes(String type) {
+	SQLData(String type) {
 		this.type = type;
 		switch(type) {
 			case "ENUM": case "SET":
@@ -57,5 +70,5 @@ public enum SQLTypes {
 				return type;
 		}
 	}
-
+*/
 }

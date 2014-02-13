@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import com.octopod.utils.reflection.ClassUtils;
 import com.octopod.utils.reflection.ReflectionException;
 
-public class BossBar {
+public class FakeBar {
 	
 	Player player;
 	String text = " ";
@@ -20,8 +20,8 @@ public class BossBar {
 	
 	static int ENTITY_ID = 1234;	
 	
-	public BossBar(Player player) {this(player, " ", 200);}
-	public BossBar(Player player, String text, int health) {
+	public FakeBar(Player player) {this(player, " ", 200);}
+	public FakeBar(Player player, String text, int health) {
 		this.player = player; 
 		PacketPlayOutSpawnEntityLiving packet = getMobPacket(text, health, player.getLocation());
 		BukkitPacketUtils.sendPacket(player, packet);
@@ -59,7 +59,7 @@ public class BossBar {
 	
 	@SuppressWarnings("deprecation")
 	public static PacketPlayOutSpawnEntityLiving getMobPacket(String text, int health, Location loc){
-		
+
 		PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving();
 
 		try {
