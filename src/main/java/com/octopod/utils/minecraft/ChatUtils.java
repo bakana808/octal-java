@@ -16,7 +16,7 @@ public class ChatUtils {
 	
 	public enum Alignment {
 		LEFT, RIGHT, CENTER;
-		public Alignment fromCode(int n) {
+		public static Alignment fromCode(int n) {
 			switch(n) {
 				case 0:
 				default:
@@ -283,7 +283,7 @@ public class ChatUtils {
         if(!skipRightFiller || alignment != Alignment.LEFT)
 	        for(int i = 0; i < extra.length; i++) {
 	        	if((!skipRightFiller && i == 1) || i == 0)
-	        		fill[i] += legacyFiller(extra[i], precise, emptyFiller);
+	        		fill[i] += filler_legacy(extra[i], precise, emptyFiller);
 	        }
 
         switch(alignment){
@@ -319,7 +319,8 @@ public class ChatUtils {
 	     * @return The filler as a string. 
 	     */
     
-    static public String legacyFiller(int width, boolean precise, String emptyFiller) {
+    @Deprecated
+    static public String filler_legacy(int width, boolean precise, String emptyFiller) {
     	
     	final int emptyFillerWidth = width(emptyFiller);
         StringBuilder filler = new StringBuilder();
@@ -357,7 +358,7 @@ public class ChatUtils {
     }
     
     static public ChatElement filler(int width, boolean precise, String emptyFiller) {
-    	ChatElement filler = new ChatElement(legacyFiller(width, precise, emptyFiller));
+    	ChatElement filler = new ChatElement(filler_legacy(width, precise, emptyFiller));
     	return filler.color(FILLER_COLOR);
     }
     
