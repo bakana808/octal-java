@@ -8,7 +8,6 @@ import java.util.Map;
 import org.json.simple.JSONValue;
 
 import com.octopod.utils.abstraction.MCPlayer;
-import com.octopod.utils.minecraft.ChatUtils.Alignment;
 import com.octopod.utils.minecraft.ChatUtils.ClickEvent;
 import com.octopod.utils.minecraft.ChatUtils.Color;
 import com.octopod.utils.minecraft.ChatUtils.Format;
@@ -37,7 +36,7 @@ public class ChatBuilder {
 	 * The total amount of elements.
 	 * @return size of elements.
 	 */	
-	public int size() {return allElements.size();}
+	public int size() {return allElements.size();} 
 	
 	/**
 	 * Gets the list of all ChatElements.
@@ -97,9 +96,18 @@ public class ChatBuilder {
 	 * It will also select the last element.
 	 * @param element The ChatElement to push.
 	 */		
-	public ChatBuilder append(ChatElement element) {
-		allElements.add(element);
+	public ChatBuilder append(ChatElement... elements) {
+		for(ChatElement element: elements) {
+			allElements.add(element);
+		}
 		return select(size() - 1);
+	}
+	
+	public ChatBuilder append(List<ChatElement> elements) {
+		for(ChatElement element: elements) {
+			allElements.add(element);
+		}
+		return select(size() - 1);		
 	}
 	
 	/**
@@ -112,7 +120,7 @@ public class ChatBuilder {
 	 * @param width The width of the filler.
 	 */		
 	public ChatBuilder appendFiller(int width) { 
-		allElements.add(ChatUtils.filler(width));
+		allElements.add(ChatUtils.fillerElement(width));
 		return select(size() - 1);
 	}
 	
@@ -127,13 +135,12 @@ public class ChatBuilder {
 	 * @param width The width of the block of text.
 	 * @param alignment The alignment to use (Left, Right, Center)
 	 */	
-	public ChatBuilder appendBlock(ChatElement element, int width, Alignment alignment) {
-		element.text(ChatUtils.cut(element.getText(), width));
-		return append(element).fit(width);
+	public ChatBuilder appendBlock(ChatElement element, int width, int alignment) {
+		return append(ChatUtils.blockElement(ChatUtils.toLegacy(element), width, alignment, ' ', true));
 	}	
 	
 	public ChatBuilder appendBlock(ChatElement element, int width) {
-		return appendBlock(element, width, Alignment.LEFT);
+		return appendBlock(element, width, 0);
 	}	
 	
 	/**
@@ -141,10 +148,10 @@ public class ChatBuilder {
 	 * If the width of the text from the current element is longer than 'width', some trunctation might occur.
 	 * @param width the width to fit to
 	 */
-	public ChatBuilder fit(int width) {
+	public ChatBuilder fit(int width, int alignment) {
 		currentElement.text(ChatUtils.cut(currentElement.getText(), width));
 		int fillerWidth = width - ChatUtils.width(currentElement.getText());
-		currentElement.extra(ChatUtils.filler(fillerWidth));
+		currentElement.append(ChatUtils.fillerElement(fillerWidth));
 		return this;
 	}
 	

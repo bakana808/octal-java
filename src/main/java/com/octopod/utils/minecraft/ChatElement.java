@@ -60,9 +60,16 @@ public class ChatElement {
 	 * incorperated in the resultant JSON object under the key 'extra'.
 	 * @param elements A variable amount of ChatElements
 	 */
-	public ChatElement extra(ChatElement... elements) {
+	public ChatElement append(ChatElement... elements) {
 		for(ChatElement e: elements) {
 			extras.add(e);
+		}
+		return this;
+	}
+	
+	public ChatElement append(String... text) {
+		for(String t: text) {
+			extras.add(new ChatElement(t));
 		}
 		return this;
 	}

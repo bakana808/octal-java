@@ -28,11 +28,7 @@ public class ChatUtils {
 			}
 		}
 	}
-	
-	public enum Flag {
-		UNPRECISE, SKIPRIGHT
-	}
-	
+
 	public enum ClickEvent {
 		OPEN_URL, OPEN_FILE, RUN_COMMAND, SUGGEST_COMMAND
 	}
@@ -78,9 +74,15 @@ public class ChatUtils {
 	public static void send(MCPlayer target, String json) {
 		target.sendJsonMessage(json);
 	}
-
-	public static String toLegacy(ChatBuilder builder) {return toLegacy(builder, '\u00A7');}
 	
+	public static String translateColorCodes(String message) {
+		return translateColorCodes(message, '&');
+	}	
+	
+	public static String translateColorCodes(String message, char replace) {
+		return message.replace(replace, '\u00A7');
+	}
+
 	/**
 	 * Converts a ChatBuilder object to Minecraft legacy chat string. 
 	 * Obviously, hover and click events won't carry over.
@@ -88,14 +90,19 @@ public class ChatUtils {
 	 * @return The legacy chat string.
 	 */
 	
-	public static String toLegacy(ChatBuilder builder, char colorCode) {
+	public static String toLegacy(ChatBuilder builder) {
+		return toLegacy();
+	}
+	
+	public static String toLegacy(ChatElement... elements) {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		for(ChatElement e: builder.getChatElements()) {
-			sb.append(colorCode + "" + e.getColor().getChar());
-			for(Format format: e.getFormats())
-				sb.append(colorCode + "" + format.getChar());
+		for(ChatElement e: elements) {
+			sb.append(e.getColor());
+			for(Format format: e.getFormats()) {
+				sb.append(format);
+			}
 			sb.append(e.getText());
 		}
 		
@@ -103,7 +110,7 @@ public class ChatUtils {
 		
 	}
 
-	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
+	public static ChatElement fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
 	
 	/**
 	 * Converts Minecraft legacy chat to a ChatBuilder object.
@@ -111,9 +118,9 @@ public class ChatUtils {
 	 * @return A new ChatBuilder object.
 	 */
 	
-	public static ChatBuilder fromLegacy(String message, char colorCode) {
-		ChatBuilder builder = new ChatBuilder();
-
+	public static ChatElement fromLegacy(String message, char colorCode) {
+		ChatElement element = new ChatElement();
+		
 		StringBuilder text = new StringBuilder();
 		boolean nextIsColorCode = false;
 		Color lastColor = Color.WHITE;
@@ -132,7 +139,9 @@ public class ChatUtils {
 				Format format = Format.getByChar(c);
 				if(color != null && format == null) { //This is a color
 					//Push new element
-					if(!text.toString().equals("")) builder.append(text.toString()).color(lastColor).format(formats.toArray(new Format[formats.size()]));
+					if(!text.toString().equals("")) {
+						element.append(text.toString()).color(lastColor).format(formats.toArray(new Format[formats.size()]));
+					}
 					//Reset variables
 					text = new StringBuilder();
 					lastColor = color;
@@ -147,9 +156,9 @@ public class ChatUtils {
 			
 		}
 		
-		builder.append(text.toString()).color(lastColor).format(formats.toArray(new Format[formats.size()]));
+		element.append(text.toString()).color(lastColor).format(formats.toArray(new Format[formats.size()]));
 		
-		return builder;
+		return element;
 	}
 
 	public static ChatBuilder join(ChatBuilder builder, ChatElement glue) {return join(builder, glue, glue);}
@@ -224,7 +233,7 @@ public class ChatUtils {
 	        case '|': return 2;
 	        case '.': return 2;
 	        case '\u2019': return 2; //filler character; Reverse quotation mark.
-	        case '`': return 2; //old filler character; Width change since 1.7
+	        case '`': return 3; //old filler character; Width change since 1.7
 	        case ' ': return 4;
 	        case 'f': return 5;
 	        case 'k': return 5;
@@ -235,119 +244,127 @@ public class ChatUtils {
 	        default: return 6;
 	    }
 	}
+	
+	private static interface BlockRenderer <T> {
+		public T render(String lFiller, String text, String rFiller);
+	}
 
-	@Deprecated
-    static public String block(String text, int toWidth, Alignment alignment, Flag... flag_array){return block(text, toWidth, alignment, " ", flag_array);}
-    
 	    /**
 	     * Creates a block of text with a variable width. Useful for aligning text into columns on multiple lines.
 	     * @param text The string to insert
 	     * @param toWidth The width to fit the text to in pixels. (Will cut the text if toWidth is shorter than it)
-	     * @param alignment Which way to align the text. (Left / Right / Center)
-	     * @param emptyFiller The primary character to use for filling. Usually a space.
+	     * @param alignment Which way to align the text. (0: left, 1: right, 2: center)
+	     * @param fillerChar The primary character to use for filling. Usually a space.
 	     * @param flag_array A list of flags to modify the return string
 	     * @return The text fitted to toWidth.
 	     */
-    
-	@Deprecated
-    static public String block(String text, int toWidth, Alignment alignment, String emptyFiller, Flag... flag_array){
-    	
-    	boolean precise = true;
-    	boolean skipRightFiller = false;
-    	
-    	List<Flag> flags = new ArrayList<Flag>();
-    	
-    	for(Flag flag: flag_array)
-    		flags.add(flag);
-    	
-    	if(flags.contains(Flag.UNPRECISE)) precise = false;
-    	if(flags.contains(Flag.SKIPRIGHT)) skipRightFiller = true;
-        
-        text = cut(text, toWidth, false) + Color.RESET;
+
+    static private <T> T block(String text, int toWidth, int alignment, char fillerChar, boolean precise, BlockRenderer<T> renderer){
+
+        String cutText = cut(text, toWidth, false) + Color.RESET;
 
         //The total width (in pixels) needed to fill
-        final int totalFillerWidth = toWidth - width(text);
-        int[] extra;
-        String[] fill;
+        final int totalFillerWidth = toWidth - width(cutText);
+        
+        int lFillerWidth = -1, rFillerWidth = -1;
+        String lFiller = "", rFiller = "";
 
         switch(alignment) {
-        	case CENTER: //Cuts the total width to fill in half
-                extra = new int[]{(int)Math.floor(totalFillerWidth/2), (int)Math.ceil(totalFillerWidth/2)};
-                fill = new String[]{"",""};
+        	case 0: //Left Alignment
+        	default:
+        		rFillerWidth = totalFillerWidth;
+        		break;
+        	case 1: //Right Alignment
+        		lFillerWidth = totalFillerWidth;
+        		break;
+        	case 2: //Center Alignment; Cuts the total width to fill in half
+        		lFillerWidth = (int)Math.floor(totalFillerWidth/2);
+        		rFillerWidth = (int)Math.ceil(totalFillerWidth/2);
                 break;
-            default:
-                extra = new int[]{totalFillerWidth};
-                fill = new String[]{""};
         }
         
-        if(!skipRightFiller || alignment != Alignment.LEFT)
-	        for(int i = 0; i < extra.length; i++) {
-	        	if((!skipRightFiller && i == 1) || i == 0)
-	        		fill[i] += filler_legacy(extra[i], precise, emptyFiller);
-	        }
+        if(lFillerWidth != -1) {
+        	lFiller = fillerString(lFillerWidth, precise, fillerChar);
+        }
+        
+        if(rFillerWidth != -1) {
+        	rFiller = fillerString(rFillerWidth, precise, fillerChar);
+        }
+        
+        return renderer.render(lFiller, cutText, rFiller);
+        
+    }
+    
+    static public String blockString(String text, int toWidth, int alignment, char fillerChar, boolean precise){
 
-        switch(alignment){
-            case LEFT:
-                text = text + fill[0];
-                break;
-            case RIGHT:
-                text = fill[0] + text;
-                break;
-            case CENTER:
-                text = fill[0] + text + fill[1];
-                break;
-            default:
-                break;
-        }
+        return block(text, toWidth, alignment, fillerChar, precise, new BlockRenderer<String>() {
+
+			@Override
+			public String render(String lFiller, String text, String rFiller) {
+		        StringBuilder sb = new StringBuilder();
+		        return sb.append(lFiller).append(text).append(rFiller).toString();
+			}
+        	
+        });
         
-        return text + Color.RESET;
+    }   
+    
+    static public List<ChatElement> blockElement(String text, int toWidth, int alignment, char fillerChar, boolean precise){
+
+        return block(translateColorCodes(text), toWidth, alignment, fillerChar, precise, new BlockRenderer<List<ChatElement>>() {
+
+			@Override
+			public List<ChatElement> render(String lFiller, String text, String rFiller) {
+		        List<ChatElement> elements = new ArrayList<ChatElement>();
+		        elements.add(new ChatElement(lFiller));
+		        elements.add(new ChatElement(text));
+		        elements.add(new ChatElement(rFiller));
+		        return elements;
+			}
+        	
+        });
         
     }
 
     final static Color FILLER_COLOR = Color.DARK_GRAY;
     final static String FILLER_2PX = "\u2019"; //Remember, for bolded characters: just add 1 to the normal width!
-	
-    static public ChatElement filler(int width) {
-    	return filler(width, true, " ");
-    }
-    
+
 	    /**
 	     * Creates a filler for use in Minecraft's chat. It's a more raw function used to align text.
 	     * @param width The width of the filler (in pixels)
 	     * @param precise Whether or not to use filler characters to perfectly match the width (this will create artifacts in the filler)
-	     * @param emptyFiller The character to use primarily during the filler (should be a space most of the time)
+	     * @param fillerChar The character to use primarily during the filler (should be a space most of the time)
 	     * @return The filler as a string. 
 	     */
-    
-    @Deprecated
-    static public String filler_legacy(int width, boolean precise, String emptyFiller) {
+
+    static public String fillerString(int width, boolean precise, char fillerChar) {
     	
-    	final int emptyFillerWidth = width(emptyFiller);
+    	final int fillerCharWidth = width(fillerChar);
         StringBuilder filler = new StringBuilder();
         
-        while(width > emptyFillerWidth + 1){
-            filler.append((String)emptyFiller);
-            width -= emptyFillerWidth;
+        while(width > fillerCharWidth + 1){
+            filler.append(fillerChar);
+            width -= fillerCharWidth;
         }
 
         switch(width){
         case 6:
-            if(emptyFillerWidth == 6) {filler.append((String)emptyFiller); break;}
+            if(fillerCharWidth == 6) {filler.append(fillerChar); break;}
         case 5:
-            if(emptyFillerWidth == 5) {filler.append((String)emptyFiller); break;}
+            if(fillerCharWidth == 5) {filler.append(fillerChar); break;}
             filler.append(Format.BOLD + " " + Color.RESET);
             break;
-        case 4:
-            if(emptyFillerWidth == 4) {filler.append((String)emptyFiller); break;}
+        case 4: //The farthest we can go without using filler characters is 4, which is the size of a space.
+            if(fillerCharWidth == 4) {filler.append(fillerChar); break;}
             filler.append(" ");
             break;
         case 3:
-            if(emptyFillerWidth == 3) {filler.append((String)emptyFiller); break;}
+            if(fillerCharWidth == 3) {filler.append(fillerChar); break;}
             if(!precise) break;
             filler.append(FILLER_COLOR + "" + Format.BOLD + FILLER_2PX + Color.RESET);
             break;
         case 2:
-            if(emptyFillerWidth == 2) {filler.append((String)emptyFiller); break;}
+            if(fillerCharWidth == 2) {filler.append(fillerChar); break;}
             if(!precise) break;
             filler.append(FILLER_COLOR + FILLER_2PX + Color.RESET);
             break;
@@ -356,12 +373,16 @@ public class ChatUtils {
         return filler.toString();
         
     }
-    
-    static public ChatElement filler(int width, boolean precise, String emptyFiller) {
-    	ChatElement filler = new ChatElement(filler_legacy(width, precise, emptyFiller));
+	
+    static public ChatElement fillerElement(int width) {
+    	return fillerElement(width, true, ' ');
+    }
+          
+    static public ChatElement fillerElement(int width, boolean precise, char emptyFiller) {
+    	ChatElement filler = new ChatElement(fillerString(width, precise, emptyFiller));
     	return filler.color(FILLER_COLOR);
     }
-    
+
 	    /**
 	     * Returns the width of the text inserted into the function. Accounts for color symbols and bolded characters.
 	     * @param text The text to use for calculation.
