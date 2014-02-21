@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.json.simple.JSONValue;
 
-import com.octopod.octolib.abstraction.MCPlayer;
 import com.octopod.octolib.minecraft.ChatUtils.ClickEvent;
 import com.octopod.octolib.minecraft.ChatUtils.Color;
 import com.octopod.octolib.minecraft.ChatUtils.Format;
@@ -249,7 +248,7 @@ public class ChatBuilder {
 	 * Sends the player this object represented as a chat message.
 	 * @param player The player that the message will be sent to.
 	 */
-	public void send(MCPlayer player) {
+	public void send(AbstractPlayer player) {
 		ChatUtils.send(player, this);
 	}
 	

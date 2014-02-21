@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.octopod.octolib.abstraction.MCPlayer;
-
 /**
  * Last Updated: 2.15.2014
  * ChatUtils that provide tools relating to MC's chat and Chat Libraries.
@@ -52,11 +50,11 @@ public class ChatUtils {
 		public String toString() {return '\u00A7' + "" + character;}
 	}
 	
-	public static void send(MCPlayer target, ChatBuilder builder) {
+	public static void send(AbstractPlayer target, ChatBuilder builder) {
 		send(target, builder.toString());
 	}
 	
-	public static void send(MCPlayer target, String json) {
+	public static void send(AbstractPlayer target, String json) {
 		target.sendJsonMessage(json);
 	}
 	
