@@ -1,0 +1,91 @@
+1:
+    name: 'LIGHTNING'
+    color: 'e'
+    item: '2256:0'
+    ammo: 15
+    ammo-name: 'BOLTS'
+    ammo-inc: 5
+    ammo-item: '351:11'
+    cooldown: 1.5
+    shot-damage: 80
+    melee-damage: 0
+    melee-cooldown: 2
+    
+2:
+    name: 'METEOR'
+    color: 'c'
+    item: '2259:0'
+    ammo: 25
+    ammo-name: 'FIREBALLS'
+    ammo-item: '351:1'
+    cooldown: 0.7
+    shot-damage: 80
+    melee-damage: 0
+    melee-cooldown: 2
+    splash-damage: 60
+    
+3:
+    name: 'NAILGUN'
+    color: '6'
+    item: '2258:0'
+    ammo: 25
+    ammo-name: 'SHELLS'
+    ammo-item: '351:14'
+    cooldown: 1
+    shot-damage: 10
+    melee-damage: 0
+    melee-cooldown: 2
+    
+4:
+    name: 'PLASMA'
+    color: 'a'
+    item: '2257:0'
+    ammo: 50
+    ammo-name: 'CELLS'
+    ammo-item: '351:10'
+    ammo-inc: 25
+    cooldown: 0.3
+    shot-damage: 20
+    melee-damage: 0
+    melee-cooldown: 2
+
+5:
+    name: 'IMPACT'
+    color: '9'
+    item: '2267:0'
+    ammo: 25
+    ammo-name: 'GRENADES'
+    ammo-item: '351:4'
+    cooldown: 0.6
+    shot-damage: 30
+    melee-damage: 0
+    melee-cooldown: 2
+    splash-damage: 20
+     
+6:
+    name: 'MERCURY'
+    color: 'd'
+    item: '2261:0'
+    bullet: 'WITHER_SKULL'
+    ammo: 3
+    ammo-name: 'DARK MATTER'
+    ammo-item: '351:5'
+    ammo-inc: 1
+    cooldown: 0.4
+    shot-damage: 100
+    melee-damage: 0
+    melee-cooldown: 2
+    splash-damage: 100
+       
+7:
+    name: 'DASHBLADE'
+    color: '7'
+    item: '2264:0' 
+    ammo: -1
+    cooldown: 1.1
+    shot-speed: 5
+    shot-damage: 5
+    melee-damage: 20
+    melee-cooldown: 0.4
+    
+

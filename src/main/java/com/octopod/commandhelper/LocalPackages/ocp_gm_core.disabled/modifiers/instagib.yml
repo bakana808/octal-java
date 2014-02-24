@@ -1,0 +1,19 @@
+name: 'Instagib'
+map:
+gamemode:
+weapons:
+    0:
+        remove: 1
+    1:
+        shot-damage: 200
+        ammo: -1
+    2:
+        remove: 1
+    3:
+        remove: 1
+    4:
+        remove: 1
+    5:
+        remove: 1
+    6:
+        remove: 1

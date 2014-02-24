@@ -1,0 +1,62 @@
+
+foreach(import('ocp.mod.includes'), @path, include(@path))
+
+_cmnd_register(array('/stats'), '', '',
+	closure(
+	
+		@player = @arguments[1]
+		
+		@stats = import('ocp.gm.stats.player')
+	
+		_ocp_msg(@player, '&8+---------------------------------------------------+')
+		_ocp_msg(@player, '&0`&8| +txt[60:"&fTeam":0]+txt[96:"&7Player":0]+txt[50:"&fKills":0]+txt[50:"&7Deaths":0]+txt[50:"&fScore":0]&8|')
+		_ocp_msg(@player, '&8+---------------------------------------------------+')
+		foreach(@stats, @target, @info,
+			@k = @info[0]
+			@d = @info[1]
+			@s = @info[2]
+			_ocp_msg(@player, '&0`&8| &f+txt[60:"&fWHITE":0]+txt[96:"&7'.@target.'":0]+txt[50:"&f'.@k.'":0]+txt[50:"&7'.@d.'":0]+txt[50:"&f'.@s.'":0]&8|')
+		)
+		_ocp_msg(@player, '+txt[318:"&8+---------------------------------------------------+":0]')
+		
+	)
+)
+
+_cmnd_register(array('/die', 'please kill me'), '', '',
+	closure(
+	
+		@player = @arguments[1]
+
+		_gm_hurt(@player, 999, @player)
+		
+	)
+)
+
+_cmnd_register(array('/help'), '', '',
+	closure(
+	
+		@player = @arguments[1]
+		
+		tmsg(@player, colorize('&8+---------------------------------------------------+'))
+		tmsg(@player, colorize('&8`&8|' . _adv_string_fill('&l= How to Play =&r', 316, 2) . '&8|'))
+		tmsg(@player, colorize('&8+---------------------------------------------------+'))
+		tmsg(@player, colorize('&8`&8|' . _adv_string_fill('&e&l[LEFT CLICK]&r to hit other players.', 331, 2) . '&8|'))
+		tmsg(@player, colorize('&8`&8|' . _adv_string_fill('&e&l[RIGHT CLICK]&r to fire weapon / use ability.', 330, 2) . '&8|'))
+		tmsg(@player, colorize('&8`&8|' . _adv_string_fill('&aAll weapons need to cooldown after use.', 322, 2) . '&8|'))
+		tmsg(@player, colorize('&8`&8|' . _adv_string_fill('&aYou cannot use any weapon during the cooldown.', 322, 2) . '&8|'))
+		tmsg(@player, colorize('&8`&8|' . _adv_string_fill('Different weapons work best in different situations.', 310, 2) . '&8|'))
+		tmsg(@player, colorize('&8+---------------------------------------------------+'))
+		
+	)
+)
+
+_cmnd_register(array('/rules'), '', '',
+	closure(
+	
+		@player = @arguments[1]
+		
+		_gm_show_objective(@player)
+		
+	)
+)
+

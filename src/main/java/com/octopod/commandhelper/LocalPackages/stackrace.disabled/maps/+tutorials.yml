@@ -1,0 +1,50 @@
+pack-name: '&bTutorials'
+pack-desc: '&eLearn how to play this game!'
+
+tut1:
+    name: 'Tutorial I - 1'
+    author: 'Octopod'
+    desc: '&dLearn how to move blocks!'
+    diff: 0
+    spawn_loc: [41.5, 9, 21.5, gm_lobby]
+    spawn_ang: [90, 15]
+    time_1: 6500
+    time_2: 10000
+    time_3: 60000
+    
+tut2:
+    name: 'Tutorial I - 2'
+    author: 'Octopod'
+    desc: '&dLearn how to climb by moving blocks!'
+    diff: 0
+    spawn_loc: [41.5, 9, 31.5, gm_lobby]
+    spawn_ang: [90, 15]
+    time_1: 10000
+    time_2: 15000
+    time_3: 75000
+
+tut3:
+    name: 'Tutorial II - 1'
+    author: 'Octopod'
+    desc: '&aLearn how to create blocks!'
+    diff: 0
+    spawn_loc: [41.5, 9, 41.5, gm_lobby]
+    spawn_ang: [90, 40]
+    block-place: 50
+    block-move: 0
+    time_1: 13000
+    time_2: 15000
+    time_3: 75000
+    
+#tut4:
+#    name: 'Tutorial 4'
+#    author: 'Octopod'
+#    desc: ''
+#    diff: 0
+#    spawn_loc: [41.5, 9, 51.5, gm_lobby]
+#    spawn_ang: [90, 40]
+#    end_1: [12, 13, 52]
+#    end_2: [12, 15, 50]
+#    time_1: 13000
+#    time_2: 15000
+#    time_3: 75000

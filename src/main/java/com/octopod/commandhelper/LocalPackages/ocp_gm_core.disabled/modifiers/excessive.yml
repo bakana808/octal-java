@@ -1,0 +1,13 @@
+name: 'Excessive'
+gamemode:
+weapons:
+    0:
+        cooldown: 0
+    1:
+        cooldown: 0
+    2:
+        cooldown: 0
+    3:
+        cooldown: 0
+    4:
+        cooldown: 0

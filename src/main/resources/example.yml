@@ -1,0 +1,5 @@
+list:
+    #comment
+    boolean: true 
+    int: 2
+    array: ['a', 2, 3]  

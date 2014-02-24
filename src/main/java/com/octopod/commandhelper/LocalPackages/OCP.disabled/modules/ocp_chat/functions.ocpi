@@ -1,0 +1,326 @@
+
+#======================================================================================================#
+#	Chat Functions
+#======================================================================================================#
+			
+proc(_ocp_chat_vars, @msg, @as, @type, 
+
+	if(@player !== null,
+		try(@player = player(@as), @player = player())
+	)
+
+	switch(@type,
+		'SERVER',
+			@formats = array(_ocp_chat_format_server(), _ocp_chat_format_server_m()),
+			@formats = array(_ocp_chat_format_player(), _ocp_chat_format_player_m())
+	)
+			
+	@format_array = array()
+	
+	foreach(@formats, @type, @format,
+	
+		if(trim(@msg) == '', break())
+
+		#@format = replace(@format, '+clan', @clan)
+		#@format = replace(@format, '+info', _ser(array('chat', 'server', 'info')))
+
+		@time = _time_get()
+
+		@format = replace(@format, '+time', @time[hr] . ':' . @time[mn])
+
+		@cl_format = _ocp_chat_color_format()
+
+		@format = replace(@format, '+c0', @cl_format[0])
+		@format = replace(@format, '+c1', @cl_format[1])
+		@format = replace(@format, '+tone', _ocp_chat_toner_get())
+
+		@group = _pGroup(@player)
+
+		@format = replace(@format, '+pre', 	_gPrefix(@group))
+		@format = replace(@format, '+suf', 	_gSuffix(@group))
+		@format = replace(@format, '+group', @group)
+
+		try(@name = pinfo(@player, 4), @name = @player)
+
+		@matches = reg_match_all('\\+txt\\[[0-9]*\\:\\"[^].]*\\"\\:[0-2]\\]', @format)
+
+		foreach(@matches, @match,
+
+			@line = @match[0][cslice(5, -2)]
+
+			@f_string = reg_match('\\"[^].]*\\"', @line)[0]
+
+			@line = replace(@line, @f_string, 'block')
+
+			@options = split(':', @line)
+
+			@f_width = integer(@options[0])
+			@f_align = integer(@options[2])
+
+			@block = _adv_string_fill(@f_string[cslice(1, -2)], @f_width, @f_align, true)
+
+			@format = replace(@format, @match[0], @block[0])
+	
+		)
+		
+		@match = reg_match('\\+name\\[[0-9]*\\:[0-2]\\]', @format)
+
+		if(@match != array(),
+			@line = @match[0][cslice(6, -2)]
+
+			@options = split(':', @line)
+
+			@f_width = integer(@options[0])
+			@f_align = integer(@options[1])
+
+			@block = _adv_string_fill(@player, @f_width, @f_align, true)
+
+			@format = replace(@format, @match[0], @block[0])
+			
+			@replaceable = @block[1]
+		)
+
+		@match = reg_match('\\+msg\\[[0-9]*\\:[0-2]\\]', @format)
+	
+		try(
+			if(array_size(@match) != 0,
+		
+				while(true,
+
+					@line = @match[0][cslice(5, -2)]
+							
+					@options = split(':', @line)
+
+					@f_width = integer(@options[0])
+					@f_align = integer(@options[1])
+							
+					@block = _adv_string_fill(@msg, @f_width, @f_align, true)
+
+					@msg = trim(@block[4])
+							
+					@format = replace(@format, @match[0], '//msg//')
+					
+					@format_array[] = array(@format, @block[0], @replaceable)
+					
+					@match = reg_match('\\+msg\\[[0-9]*\\:[0-2]\\]', @format)
+					
+					_ocp_chat_toner_switch()
+
+					if(@type == 0, break())
+
+				)
+				
+			)
+		)
+
+	)
+
+	return(@format_array)
+	
+)
+
+proc(_ocp_chat, @msg, @sender,
+
+	if(@as == '', @sender = player())
+
+	try(
+	
+		@formats = _ocp_chat_vars(@msg, @sender)
+
+		foreach(all_players(), @player,	
+
+			foreach(@formats, @array,
+			
+					if(@player == @sender,
+						@array[0] = replace(@array[0], @array[2], _ocp_chat_color_unique() . @array[2]),
+						@array[0] = replace(@array[0], @array[2], _ocp_chat_color_others() . @array[2])
+					)
+
+					tmsg(@player, replace(@array[0], '//msg//', @array[1]))
+				
+			)
+			
+		)
+
+		if(@highlighted,
+			play_sound(ploc(@player), array(sound: NOTE_SNARE_DRUM, volume: 40), @player)
+		)
+		
+		return(true),
+		
+		@ex, broadcast(@ex)
+		
+		return(false)
+	)
+	
+)
+
+proc(_ocp_broadcast, @msg,
+
+	try(
+		
+		@formats = _ocp_chat_vars(@msg, null, 'SERVER')
+
+		foreach(all_players(), @player,	
+
+			foreach(@formats, @array,
+
+					tmsg(@player, replace(@array[0], '//msg//', @array[1]))
+				
+			)
+			
+		)
+		
+		return(true),
+		
+		@ex, broadcast(@ex)
+		
+		return(false)
+	)	
+	
+)
+
+proc(_ocp_msg, @target, @msg, 
+
+	if(@target == '', @target = player())
+
+	try(
+		
+		@formats = _ocp_chat_vars(@msg, null, 'SERVER')
+
+		foreach(@formats, @array,
+
+				tmsg(@target, replace(@array[0], '//msg//', @array[1]))
+			
+		)
+		
+		return(true),
+		
+		@ex, broadcast(@ex)
+		
+		return(false)
+	)	
+	
+)
+
+proc(_ocp_chat_toner_switch, @override,
+	
+	if(@override != '',
+	
+		export('ocp.chat.toner', @override),
+
+		@ocp_chat_toner = import('ocp.chat.toner')
+		
+		@toners = _ocp_mod_cfg('ocp_chat', 'cl_toners')
+		
+		@ocp_chat_toner += 1
+		if(@ocp_chat_toner >= array_size(@toners), @ocp_chat_toner = 0)
+		
+		export('ocp.chat.toner', @ocp_chat_toner)
+	
+	)
+
+)
+
+proc(_ocp_chat_toner_get, @index,
+	
+	@ocp_chat_toner = import('ocp.chat.toner')
+
+	if(@index,
+		return(@ocp_chat_toner),
+		@toners = _ocp_mod_cfg('ocp_chat', 'cl_toners')
+		try(	
+			return(colorize(@toners[@ocp_chat_toner])),
+			return(&0)
+		)
+	)
+
+)
+
+proc(_ocp_chat_format_player, #@player,
+
+	try(
+		return(_ocp_mod_cfg('ocp_chat', 'fm_player')),
+		return('[+name] ')
+	)
+		
+)
+
+proc(_ocp_chat_format_server, #@player,
+
+	try(
+		return(_ocp_mod_cfg('ocp_chat', 'fm_server')),
+		return('[+name] ')
+	)
+		
+)
+
+proc(_ocp_chat_format_player_m, #@player,
+
+	try(
+		return(_ocp_mod_cfg('ocp_chat', 'fm_player_multil')),
+		return('')
+	)
+		
+)
+
+proc(_ocp_chat_format_server_m, #@player,
+
+	try(
+		return(_ocp_mod_cfg('ocp_chat', 'fm_server_multil')),
+		return('')
+	)
+		
+)
+
+proc(_ocp_chat_color_format, #@player,
+
+    try(
+		@colors = _ocp_mod_cfg('ocp_chat', 'cl_format')
+        return(array(colorize(@colors[0]), colorize(@colors[1]))),
+        return(array('', ''))
+    )
+	
+)
+
+proc(_ocp_chat_color_unique, #@player,
+
+    try(
+		@colors = _ocp_mod_cfg('ocp_chat', 'cl_nameunique')
+        return(colorize(@colors[0])),
+        return('')
+    )
+	
+)
+
+proc(_ocp_chat_color_others, #@player,
+
+    try(
+		@colors = _ocp_mod_cfg('ocp_chat', 'cl_nameothers')
+        return(colorize(@colors[0])),
+        return('')
+    )
+	
+)
+
+proc(_ocp_chat_color_player, #@player,
+
+    try(
+		@colors = _ocp_mod_cfg('ocp_chat', 'cl_player')
+		foreach(@colors, @color, @color = colorize(@color))
+        return(array(colorize(@colors[0]), colorize(@colors[1]))),
+        return(array('', ''))
+    )
+	
+)
+
+proc(_ocp_chat_color_server, #@player,
+
+    try(
+		@colors = _ocp_mod_cfg('ocp_chat', 'cl_server')
+		foreach(@colors, @color, @color = colorize(@color))
+        return(array(colorize(@colors[0]), colorize(@colors[1]))),
+        return(array('', ''))
+    )
+	
+)

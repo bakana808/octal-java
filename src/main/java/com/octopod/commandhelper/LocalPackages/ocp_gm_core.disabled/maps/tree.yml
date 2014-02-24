@@ -1,0 +1,32 @@
+
+name: 'Tree'
+author: 'diddydrew2'
+screenshot: 'NONE'
+world: 'env_blank'
+
+player-spawnpoints:
+    1:
+        position: [15, 61, 14]
+        angles: [135, 0]
+        team: 0
+    2:
+        position: [-19, 55, 25]
+        angles: [-135, 0]
+        team: 2
+    3:
+        position: [0, 72, 3]
+        angles: [135, 0]
+        team: 3
+    4:
+        position: [4, 69, -10]
+        angles: [45, 0]
+        team: 4
+    5:
+        position: [10, 51, -6]
+        angles: [45, 0]
+        team: 4
+        
+spectator-spawnpoints:
+    1:
+        position: [0, 95, 10]
+        angles: [270, 0]

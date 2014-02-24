@@ -1,0 +1,30 @@
+#==============================================================================#
+#   THIS CONFIGURATION IS IN ALPHA
+#==============================================================================#
+
+#player messages will go directly after the format
+
+fm_player: '+name[60:1] +c1| +tone+msg[248:0]' 
+fm_player_multil: '+txt[60:"":1] +c1| +tone+msg[248:0]' 
+
+fm_server: '+c1[ +c0+msg[304:0] +c1]'
+fm_server_multil: '+c1[ +c0+msg[304:0] +c1]' 
+
+cl_format: ['&7', '&8']
+cl_player: ['', '&a']
+cl_server: ['&7', '&b']
+cl_toners: ['&f', '&7']
+
+# name coloring
+
+#1 to use group colors on everybody except the person chatting; 
+#2 to use group colors on everyone; 
+#0 to disable
+#note: it does use the group's prefix only
+cl_nameusegroup: 0
+
+#color that is unique to the person chatting (tip: make it blank to not use name colors
+cl_nameunique: ['&f']
+
+#color for everyone else
+cl_nameothers: ['&7']

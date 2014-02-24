@@ -1,0 +1,8 @@
+
+#OCP info.yml template v0.1
+
+name: 'OCP Chat'
+version: '0.1'
+author: 'Octopod'
+
+config: 'config.yml'

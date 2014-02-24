@@ -1,0 +1,26 @@
+
+try(
+	import(@mod_includes)
+	foreach(@mod_includes, @path, include(@path))
+)
+
+
+_cmnd_register(array('/calculator', '/calc', '/cl'), '', '',
+	closure(
+		@function = array_implode(@arguments[0])
+		if(@function == '', 
+			_ocp_msg(@arguments[1], '{6}/calc <equation> - {5}Solves your math homework.')					
+			die()
+		)
+		if(reg_count(',', @function) > 1, 
+			_ocp_msg(@arguments[1], 'You\'ve formatted your equation wrong!')
+			die()
+		)
+		try(
+			@answer = expr(@function)
+			if(is_integral(@answer), @answer = integer(@answer))
+			_ocp_msg(@arguments[1], @function . ' = {6}'. @answer),
+			_ocp_msg(@arguments[1], 'You\'ve formatted your equation wrong!')
+		)
+	)
+)
