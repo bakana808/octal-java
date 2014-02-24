@@ -48,7 +48,7 @@ public class StringUtils {
 	         * @return The imploded string.
 	         */       
         
-        public static String implode(String[] strings) {return implode(strings, "");}
+        public static String implode(String... strings) {return implode(strings, "");}
         
 	        /**
 	         * "Implodes" an array of strings into one string. Equivilant to java's join() method.

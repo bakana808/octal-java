@@ -12,6 +12,8 @@ public class Main {
 
 		System.out.println(ClassLoader.getSystemClassLoader().getResourceAsStream("example.yml") != null);
 
+        //Test
+
 		/*
 		System.out.println("Connecting to MySQL...");
 		SQLConnection sql;
