@@ -3,6 +3,9 @@ package com.octopod.octolib;
 import java.util.Arrays;
 
 import com.octopod.octolib.abstraction.json.JsonObject;
+import com.octopod.octolib.minecraft.ChatBuilder;
+import com.octopod.octolib.minecraft.ChatElement;
+import com.octopod.octolib.minecraft.ChatUtils;
 import com.octopod.octolib.reflection.ReflectionException;
 import com.octopod.octolib.sql.SQLConnection;
 
@@ -10,7 +13,7 @@ public class Main {
 
 	public static void main(String args[]) throws ReflectionException {
 
-		System.out.println(ClassLoader.getSystemClassLoader().getResourceAsStream("example.yml") != null);
+        System.out.println(new ChatBuilder().appendBlock(new ChatElement("Network Commands").color(ChatUtils.Color.AQUA), 320, 2).toLegacy());
 
         //Test
 

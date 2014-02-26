@@ -55,7 +55,7 @@ public class StringUtils {
 	         * @param strings The string to format.
 	         * @param glue The string to insert between each index of the array.
 	         * @return The imploded string.
-	         */     
+	         */
         
         public static String implode(String[] strings, String glue) {
         	

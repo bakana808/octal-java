@@ -1,9 +1,6 @@
 package com.octopod.octolib.minecraft;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Last Updated: 2.15.2014
@@ -74,10 +71,14 @@ public class ChatUtils {
 	 */
 	
 	public static String toLegacy(ChatBuilder builder) {
-		return toLegacy();
+		return toLegacy(builder.getChatElements());
 	}
+
+    public static String toLegacy(ChatElement... elements) {
+        return toLegacy(Arrays.asList(elements));
+    }
 	
-	public static String toLegacy(ChatElement... elements) {
+	public static String toLegacy(List<ChatElement> elements) {
 		
 		StringBuilder sb = new StringBuilder();
 		
