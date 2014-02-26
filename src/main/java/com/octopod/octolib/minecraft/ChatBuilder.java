@@ -24,11 +24,11 @@ public class ChatBuilder {
 	private ChatElement currentElement = null;
 
 	private boolean inRange(int i) {
-		return (i >= 0 && i < allElements.size()) ? true : false;
+		return (i >= 0 && i < allElements.size());
 	}
 	
 	private boolean exists() {
-		return (currentElement == null) ? false : true;
+		return (currentElement != null);
 	}
 	
 	/**
