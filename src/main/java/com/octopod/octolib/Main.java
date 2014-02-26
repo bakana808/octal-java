@@ -13,7 +13,22 @@ public class Main {
 
 	public static void main(String args[]) throws ReflectionException {
 
-        System.out.println(new ChatBuilder().appendBlock(new ChatElement("Network Commands").color(ChatUtils.Color.AQUA), 320, 2).toLegacy());
+        System.out.println(
+                new ChatBuilder().
+                append("    ").
+                append(ChatUtils.translateColorCodes("&8[&a" + "server" + "&8] ")).
+
+                tooltip(ChatUtils.translateColorCodes(
+
+                        "&7Ping: &a" + "0" + "\n" +
+                                "&aClick to join this server!"
+
+                        , '&')).
+                run("/server " + "server").
+
+
+                append(ChatUtils.translateColorCodes("&b(" + 0 + ")"))
+        );
 
         //Test
 

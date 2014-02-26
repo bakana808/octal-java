@@ -28,9 +28,7 @@ public class YamlConfiguration {
 
 	@SuppressWarnings("unchecked")
 	public String toString() {
-		if(yaml instanceof Map<?,?>) 
-			return ((Map<Object, Object>)yaml).toString();
-			return yaml.toString(); 
+	    return yaml.toString();
 	}
 	
 	public String getParent() {return parent;}
@@ -48,11 +46,15 @@ public class YamlConfiguration {
 	 * Gets an object by YAML key.
 	 * @return Either null, a Map<Object, Object>, or an Object.
 	 */
-	
+
+    public Object get(String key) {
+        return get(key, null);
+    }
+
 	@SuppressWarnings("unchecked")
-	public Object get(String key) {
+	public Object get(String key, Object def) {
 		
-		if(yaml == null) return null;
+		if(yaml == null) return def;
 		if(key.equals("")) return yaml;
 		
 		String[] keys = key.split("\\.");
@@ -63,7 +65,7 @@ public class YamlConfiguration {
 			for(int i = 0; i < keys.length; i++) {
 				String k = keys[i];
 				if(i == keys.length - 1) {
-					return (Object)map.get(k);
+					return map.get(k);
 				} else {
 					map = (Map<Object, Object>)map.get(k);
 				}
@@ -71,7 +73,7 @@ public class YamlConfiguration {
 			
 		} catch (Exception e) {}
 		
-		return null;
+		return def;
 
 	}
 	
@@ -97,20 +99,35 @@ public class YamlConfiguration {
 		}
 		return null;
 	}
-	
-	public Boolean getBoolean(String key) {
-		Boolean obj = (Boolean)get(key);
-		if(obj == null)
-			return false;
-			return (Boolean)get(key);
+
+    public Boolean getBoolean(String key) {
+        return getBoolean(key, null);
+    }
+
+	public Boolean getBoolean(String key, Boolean def) {
+		Object obj = get(key, def);
+		if(!(obj instanceof Boolean))
+			return def;
+			return (Boolean)obj;
 	}
-	
-	public Integer getInt(String key) {return (Integer)get(key);}
+
+    public Integer getInteger(String key) {
+        return getInteger(key, null);
+    }
+
+	public Integer getInteger(String key, Integer def) {
+        Object obj = get(key, null);
+        if(!(obj instanceof Integer))
+            return def;
+            return (Integer)obj;
+    }
 	
 	@SuppressWarnings("unchecked")
 	public List<Integer> getIntList(String key) {return (ArrayList<Integer>)get(key);}
 	
-	public String getString(String key) {return String.valueOf((Object)get(key));}
+	public String getString(String key, String def) {
+        return String.valueOf(get(key, def));
+    }
 	
 	@SuppressWarnings("unchecked")
 	public List<String> getStringList(String key) {
