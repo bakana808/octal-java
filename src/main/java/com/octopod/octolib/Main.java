@@ -3,6 +3,7 @@ package com.octopod.octolib;
 import java.util.Arrays;
 
 import com.octopod.octolib.abstraction.json.JsonObject;
+import com.octopod.octolib.common.StringUtils;
 import com.octopod.octolib.minecraft.ChatBuilder;
 import com.octopod.octolib.minecraft.ChatElement;
 import com.octopod.octolib.minecraft.ChatUtils;
@@ -13,22 +14,7 @@ public class Main {
 
 	public static void main(String args[]) throws ReflectionException {
 
-        System.out.println(
-                new ChatBuilder().
-                append("    ").
-                append(ChatUtils.translateColorCodes("&8[&a" + "server" + "&8] ")).
-
-                tooltip(ChatUtils.translateColorCodes(
-
-                        "&7Ping: &a" + "0" + "\n" +
-                                "&aClick to join this server!"
-
-                        , '&')).
-                run("/server " + "server").
-
-
-                append(ChatUtils.translateColorCodes("&b(" + 0 + ")"))
-        );
+        System.out.println(StringUtils.parseArgs("\"test\" \"test\\\" 2\" \"one'' two three\""));
 
         //Test
 

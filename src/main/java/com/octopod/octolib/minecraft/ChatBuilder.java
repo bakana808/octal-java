@@ -89,6 +89,14 @@ public class ChatBuilder {
 		allElements.add(new ChatElement(message));
 		return select(size() - 1);
 	}
+
+    public ChatBuilder appendL(String message) {
+        return append(ChatUtils.translateColorCodes(message));
+    }
+
+    public ChatBuilder appendL(String message, char code) {
+        return append(ChatUtils.translateColorCodes(message, code));
+    }
 	
 	/**
 	 * Pushes a new ChatElement to the end of the ChatBuilder.
