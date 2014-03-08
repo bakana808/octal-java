@@ -184,8 +184,8 @@ public class StringUtils {
         		
         		char c = charArray[i];
 
-        		if(c == '"' && inEscape == false) {
-        			inQuotes = inQuotes == true ? false : true; //Toggle on/off inQuotes
+        		if(c == '"' && !inEscape) {
+        			inQuotes = !inQuotes; //Toggle on/off inQuotes
         			continue;
         		}
         		
@@ -195,7 +195,7 @@ public class StringUtils {
         			continue;
         		}
         		
-        		if(c == '\\' && inEscape == false) {
+        		if(c == '\\' && !inEscape) {
         			inEscape = true;
         			continue;
         		} else {

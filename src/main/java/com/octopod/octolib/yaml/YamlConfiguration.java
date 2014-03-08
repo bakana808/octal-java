@@ -124,7 +124,10 @@ public class YamlConfiguration {
 	
 	@SuppressWarnings("unchecked")
 	public List<Integer> getIntList(String key) {return (ArrayList<Integer>)get(key);}
-	
+
+    public String getString(String key) {
+        return getString(key, null);
+    }
 	public String getString(String key, String def) {
         return String.valueOf(get(key, def));
     }
