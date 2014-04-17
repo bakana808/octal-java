@@ -15,7 +15,7 @@ public class BukkitPlayer extends AbstractPlayer{
 	 
 	 public void sendJsonMessage(String json) {
 		PacketPlayOutChat packet = new PacketPlayOutChat(ChatSerializer.a(json));
-		((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);	
+		((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
 	 }
 
 }

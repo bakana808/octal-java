@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.md_5.bungee.protocol.packet.Chat;
 import org.json.simple.JSONValue;
 
 import com.octopod.octolib.minecraft.ChatUtils.ClickEvent;
@@ -267,7 +268,7 @@ public class ChatBuilder {
 	public String toLegacy() {
 		return ChatUtils.toLegacy(this);
 	}
-	
+
 	//=======================================================================================
 	// toString() Method
 	//=======================================================================================

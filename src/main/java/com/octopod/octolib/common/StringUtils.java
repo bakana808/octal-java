@@ -169,6 +169,29 @@ public class StringUtils {
             return implode(split, " ");
             
         }
+
+        static public String generateArgs(String... arguments) {
+            StringBuilder sb = new StringBuilder();
+
+            for(int i = 0; i < arguments.length - 1; i++) {
+                String element = arguments[i].replace("\"", "\\\"");
+                if(element.contains(" ")) {
+                    sb.append("\"").append(element).append("\"");
+                } else {
+                    sb.append(element);
+                }
+                sb.append(' ');
+            }
+
+            String last = arguments[arguments.length - 1].replace("\"", "\\\"");
+            if(last.contains(" ")) {
+                sb.append("\"").append(last).append("\"");
+            } else {
+                sb.append(last);
+            }
+
+            return sb.toString();
+        }
         
         static public List<String> parseArgs(String text) {
         	
