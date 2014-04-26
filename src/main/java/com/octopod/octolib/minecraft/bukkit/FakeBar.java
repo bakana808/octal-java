@@ -1,8 +1,8 @@
 package com.octopod.octolib.minecraft.bukkit;
 
-import net.minecraft.server.v1_7_R1.DataWatcher;
-import net.minecraft.server.v1_7_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_7_R1.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_7_R3.DataWatcher;
+import net.minecraft.server.v1_7_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_7_R3.PacketPlayOutSpawnEntityLiving;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;

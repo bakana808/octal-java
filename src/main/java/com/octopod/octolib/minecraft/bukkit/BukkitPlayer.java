@@ -1,11 +1,9 @@
 package com.octopod.octolib.minecraft.bukkit;
 
-import net.minecraft.server.v1_7_R1.ChatSerializer;
-import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
-
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
-
 import com.octopod.octolib.minecraft.AbstractPlayer;
+import net.minecraft.server.v1_7_R3.ChatSerializer;
+import net.minecraft.server.v1_7_R3.PacketPlayOutChat;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 
 public class BukkitPlayer extends AbstractPlayer{
 	

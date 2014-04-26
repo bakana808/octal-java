@@ -1,14 +1,9 @@
 package com.octopod.octolib.minecraft.bukkit;
 
-import net.minecraft.server.v1_7_R1.ChatSerializer;
-import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_7_R1.PacketPlayOutNamedSoundEffect;
-import net.minecraft.server.v1_7_R1.EntityPlayer;
-import net.minecraft.server.v1_7_R1.Packet;
-
+import net.minecraft.server.v1_7_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class BukkitPacketUtils {
