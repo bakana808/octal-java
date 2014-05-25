@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.octopod</groupId>
-	<artifactId>octolib</artifactId>
-	<version>0.1</version>
+	<artifactId>octal</artifactId>
+	<version>0.1.1</version>
 
-	<name>OctoLib</name>
+	<name>OctalLibrary</name>
 
 	<properties><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
 
@@ -57,10 +57,15 @@
 			<artifactId>bukkit</artifactId>
 			<version>1.7.5-R0.1-SNAPSHOT</version>
 		</dependency>
-			<dependency>
+		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
 			<version>1.7.5-R0.1-SNAPSHOT</version>
-		</dependency> 
+		</dependency>
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>commandhelper</artifactId>
+            <version>3.3.1-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 </project>
