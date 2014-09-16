@@ -1,5 +1,6 @@
 package com.octopod.util.configuration.yaml;
 
+import com.octopod.util.configuration.Configuration;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -8,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 
-public class YamlConfiguration {
+public class YamlConfiguration implements Configuration {
 
 	private String parent = "";
 	private Object yaml = null;
@@ -43,17 +44,24 @@ public class YamlConfiguration {
 	 * Gets an object by YAML key.
 	 * @return Either null, a Map<Object, Object>, or an Object.
 	 */
+	@Override
+	public Object get(String key)
+	{
+		return get(key, null);
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
-	public Object get(String key) {
-		
+	public Object get(String key, Object def)
+	{
 		if(yaml == null) return null;
 		if(key.equals("")) return yaml;
-		
+
 		String[] keys = key.split("\\.");
 		Map<Object, Object> map = (Map<Object, Object>)yaml;
-		
+
 		try {
-			
+
 			for(int i = 0; i < keys.length; i++) {
 				String k = keys[i];
 				if(i == keys.length - 1) {
@@ -62,11 +70,10 @@ public class YamlConfiguration {
 					map = (Map<Object, Object>)map.get(k);
 				}
 			}
-			
-		} catch (Exception e) {}
-		
-		return null;
 
+		} catch (Exception e) {}
+
+		return null;
 	}
 	
 	/**
@@ -112,26 +119,47 @@ public class YamlConfiguration {
 		return null;
 	}
 
-	public Boolean getBoolean(String key) {
-		Object obj = get(key);
-		if(!(obj instanceof Boolean))
-			return null;
-			return (Boolean)obj;
+	@Override
+	public boolean getBoolean(String key)
+	{
+		return getBoolean(key, false);
 	}
 
-	public Integer getInteger(String key) {
+	@Override
+	public boolean getBoolean(String key, boolean def)
+	{
+		Object obj = get(key);
+		if(!(obj instanceof Boolean))
+			return def;
+			return (boolean)obj;
+	}
+
+	public int getInt(String key)
+	{
+		return getInt(key, -1);
+	}
+
+	@Override
+	public int getInt(String key, int def)
+	{
         Object obj = get(key);
         if(!(obj instanceof Integer))
-            return null;
-            return (Integer)obj;
+            return def;
+            return (int)obj;
     }
 
-	public Long getLong(String key) {
+	public long getLong(String key)
+	{
+		return getLong(key, -1);
+	}
+
+	public long getLong(String key, long def) {
 		Object obj = get(key);
 		if(obj instanceof Long) return (Long)obj;
-		if(obj instanceof Integer) return Long.valueOf((Integer)obj);
+		if(obj instanceof Integer) return ((Integer)obj).longValue();
+		if(obj instanceof Double) return ((Double)obj).longValue();
 		if(obj instanceof String) return Long.parseLong((String)obj);
-		return null;
+		return def;
 	}
 	
 	@SuppressWarnings("unchecked")

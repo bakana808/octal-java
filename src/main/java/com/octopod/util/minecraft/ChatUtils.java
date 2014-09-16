@@ -169,7 +169,7 @@ public class ChatUtils {
 					//Reset variables
 					text = new StringBuilder();
 					lastColor = color;
-					formats = new ArrayList<ChatFormat>();
+					formats = new ArrayList<>();
 				} else if (color == null && format != null) { //This is a format
 					formats.add(format);
 				}

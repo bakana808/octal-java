@@ -8,9 +8,42 @@
 #	Advanced String Functions
 #======================================================================================================#
 
-#finds the applied formats to a position in a string
-proc(_string_colors, @string, @pos, @colorize,
+#returns the width of characters (assume that if a character isn't in this list, its width is 6)
+proc(_char_width, @char)
+{
+    #feel free to add more cases to this switch if you find more special characters
+	switch(@char)
+	{
+	    '\u00a7':   return(0), #section sign
+	    '\u2019':   return(2), #reverse quotation character
+	    ',':        return(2),
+	    '!':        return(2),
+	    ':':        return(2),
+	    'i':        return(2),
+        '|':        return(2),
+        '.':        return(2),
+        '\'':       return(3),
+        '`':        return(3), #backtick character
+        'l':        return(3),
+        '[':        return(4),
+        ']':        return(4),
+         ' ':       return(4),
+        'I':        return(4),
+        't':        return(4),
+        '*':        return(5),
+        '>':        return(5),
+        '<':        return(5),
+        '{':        return(5),
+        '}':        return(5),
+        'f':        return(5),
+        'k':        return(5),
+                    return(6)
+	}
+}
 
+#finds the applied formats to a position in a string
+proc(_string_colors, @string, @pos, @colorize)
+{
 	@formats = array()
 	
 	@colors = reg_match_all('\u00a7[0-9a-fA-Fk-or]', substr(@string, 0, @pos))
@@ -34,8 +67,7 @@ proc(_string_colors, @string, @pos, @colorize,
 		return(@premade),
 		return(@formats)
 	)
-	
-)
+}
 
 #fills the rest of the string with filler characters until the width of it is of @towidth
 #use @align: 0 = left alignment, 1 = right alignment, 2 = center alignment
