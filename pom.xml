@@ -8,6 +8,15 @@
 
 	<name>OctalLibrary</name>
 
+    <scm>
+        <!--<connection>scm:git:http://git@gitlab.nixium.com:TheOctopod/network.git</connection>
+        <developerConnection>scm:git:http://git@gitlab.nixium.com:TheOctopod/network.git</developerConnection>
+        <url>scm:git:http://gitlab.nixium.com/TheOctopod/network</url>-->
+        <connection>scm:git:https://github.com/TheOctopod/OctalLibrary.git</connection>
+        <developerConnection>scm:git:https://github.com/TheOctopod/OctalLibrary.git</developerConnection>
+        <url>scm:git:https://github.com/TheOctopod/OctalLibrary</url>
+    </scm>
+
 	<properties><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
 
 	<build>
