@@ -1,55 +1,98 @@
 #======================================================================================================#
-#	OctoLib CommandHelper
+#	OctalLibrary CommandHelper
 #======================================================================================================#
 
-# Last Updated: 2 / 9 / 2014
+#	Author: Octopod 
+#	E-mail: octopodsquad@gmail.com
+# 	Last Updated: 9 / 16 / 2014
 
 #======================================================================================================#
 #	Advanced String Functions
 #======================================================================================================#
 
 #returns the width of characters (assume that if a character isn't in this list, its width is 6)
-proc(_char_width, @char)
+#returns the width of characters (assume that if a character isn't in this list, its width is 6)
+proc _string_width(@char)
 {
-    #feel free to add more cases to this switch if you find more special characters
-	switch(@char)
+	if(length(@char) == 0) {return(0)} #no string; return 0
+	if(length(@char) == 1) #this is a character
 	{
-	    '\u00a7':   return(0), #section sign
-	    '\u2019':   return(2), #reverse quotation character
-	    ',':        return(2),
-	    '!':        return(2),
-	    ':':        return(2),
-	    'i':        return(2),
-        '|':        return(2),
-        '.':        return(2),
-        '\'':       return(3),
-        '`':        return(3), #backtick character
-        'l':        return(3),
-        '[':        return(4),
-        ']':        return(4),
-         ' ':       return(4),
-        'I':        return(4),
-        't':        return(4),
-        '*':        return(5),
-        '>':        return(5),
-        '<':        return(5),
-        '{':        return(5),
-        '}':        return(5),
-        'f':        return(5),
-        'k':        return(5),
-                    return(6)
+		#feel free to add more cases to this switch if you find more special characters
+		switch(@char)
+		{
+			case '\u00a7':  @width = 0; #section sign
+			case '\u2019':  @width = 2; #reverse quotation character
+			case ',':       @width = 2;
+			case '!':       @width = 2;
+			case ':':       @width = 2;
+			case 'i':       @width = 2;
+			case '|':       @width = 2;
+			case '.':       @width = 2;
+			case '\'':      @width = 3;
+			case '`':       @width = 3; #backtick character
+			case 'l':       @width = 3;
+			case '[':       @width = 4;
+			case ']':       @width = 4;
+			case ' ':       @width = 4;
+			case 'I':       @width = 4;
+			case 't':       @width = 4;
+			case '*':       @width = 5;
+			case '>':       @width = 5;
+			case '<':       @width = 5;
+			case '{':       @width = 5;
+			case '}':       @width = 5;
+			case 'f':       @width = 5;
+			case 'k':       @width = 5;
+			default:		@width = 6;
+		}
+		return(@width)
+	}
+	else #this is a string (more than one character)
+	{
+		@chars = split('', @string)
+		@width = 0
+		@last_char = ''
+		@no_width = false
+		@bolded = false
+
+		foreach(@i: @char in @chars)
+		{
+			@no_width = false
+			if(@last_char == '\u00a7') #This character is a color code
+			{
+				@bolded = (to_lower(@char) == 'l') #Is this a bolded code? (all widths are one pixel thicker)
+				@no_width = true #ignore this character when adding widths
+			}
+			@last_char = @char
+			if(@char == '\u00a7' && @i < array_size(@chars) - 1) 
+			{
+				continue()
+			}
+			if(!@no_width)
+			{
+				if(@bolded)
+				{
+					@width += _string_width(@char) + 1
+				} else
+				{
+					@width += _string_width(@char)
+				}
+			}
+		}
+			
+		return(@width)		
 	}
 }
 
 #finds the applied formats to a position in a string
-proc(_string_colors, @string, @pos, @colorize)
+proc _string_colors(@string, @pos, @colorize)
 {
 	@formats = array()
 	
 	@colors = reg_match_all('\u00a7[0-9a-fA-Fk-or]', substr(@string, 0, @pos))
 
-	foreach(@colors, @color,
-	
+	foreach(@color in @colors)
+	{
 		@code = substr(@color[0], 1)
 		
 		if(@code == 'r', @formats = array())
@@ -57,107 +100,117 @@ proc(_string_colors, @string, @pos, @colorize)
 		if(reg_match('[0-9a-fA-Fk-o]', @code) != array(), array_remove_values(@formats, 'l'))
 		
 		array_push(@formats, @code)	
-		
-	)
+	}
 	
 	if(@colorize,
-		foreach(@formats, @format,
+		foreach(@format in @formats)
+		{
 			@premade .= color(@format)
-		)
+		}
 		return(@premade),
 		return(@formats)
 	)
 }
 
-#fills the rest of the string with filler characters until the width of it is of @towidth
-#use @align: 0 = left alignment, 1 = right alignment, 2 = center alignment
-#use sep to return an array with the string and the generated filler character string
- 
-proc(_text, @string, @towidth, @align, @sep,
-
-	@string = colorize(@string)
-
-	@filler_color = color(8)
-
-	if(!is_integer(@align), @align = 0)
-
-	@array = _truncate(@string, @towidth, @wordwrap)
+/*
+	Creates a block of text matching @width.
+	Alignments: 0 = left, 1 = right, 2 = center
+	If @array is true, it will give you an array containing the fillers and text
+	instead of combining them.
+*/
+proc _text(@text, @width, @alignment, @array = false)
+{
+	if(!is_integral(@width))
+	{
+		throw(CastException, 'Expected an integer for @width')
+	}
 	
-	@string = @array[0]
-	@left = @array[1]
-
-	@extra = @towidth - _string_width(@string)
-
-	if(@align == 2,
-		@extra1 = @extra / 2
-		@extra2 = @extra / 2
-		if(!is_integer(@extra1),
-			@extra1 += 0.5 
-			@extra2 -= 0.5
-		)
-		if(mod(integer(@extra1), 2) != 0 && @extra1 == 1,
-			@extra1 -= 1
-			@extra2 += 1
-		)
-		@extra = array(integer(@extra1), integer(@extra2)),
-		@extra = array(@extra)
-	)
+	if(!is_integral(@alignment))
+	{
+		throw(CastException, 'Expected an integer for @alignment')
+	}
 	
-	@fills = array()
-
-	foreach(@extra, @e,
+	if(!is_boolean(@array))
+	{
+		throw(CastException, 'Expected a boolean for @array')
+	}
 	
-		@res = res_create_resource('STRING_BUILDER')
-		
-		while(@e > 5,
-			string_append(@res,  ' ')
-			@e -= 4
-		)
+	@text = _string_cut(colorize(@text), @width, @wordwrap)[0]
 
-		switch(@e,
-			5,
-				string_append(@res,  color(l) . ' '),
-			4,
-				string_append(@res,  ' '),
-			3, 
-				string_append(@res,  @filler_color . color(l) . '`'),
-			2,
-				string_append(@res,  @filler_color . '`')
-		)
-		
-		@fill = string(@res)
-		res_free_resource(@res)
-		
-		@fills[] = color(r) . @fill . color(r)
-		
-	)
+	#the width of the filler to generate
+	@TOTAL_FILLER_WIDTH = @width - _string_width(@text)
+	@L_FILLER_WIDTH = 0
+	@R_FILLER_WIDTH = 0
+
+	switch(@alignment)
+	{
+		case 2: #center alignment
+			@L_FILLER_WIDTH = floor(@TOTAL_FILLER_WIDTH / 2)
+			@R_FILLER_WIDTH = ceil(@TOTAL_FILLER_WIDTH / 2)
+		case 1: #right alignment
+			@L_FILLER_WIDTH = @TOTAL_FILLER_WIDTH
+			@R_FILLER_WIDTH = 0
+		case 0: #left alignment
+		default:
+			@L_FILLER_WIDTH = 0
+			@R_FILLER_WIDTH = @TOTAL_FILLER_WIDTH
+	}
 	
+	@L_FILLER = _string_filler(@L_FILLER_WIDTH)
+	@R_FILLER = _string_filler(@R_FILLER_WIDTH)
+
 	if(@align == '', @align = 0)
 	
-	switch(@align,
-		0,
-			if(@sep,
-				return(array(@string . @fills[0], @string, @fills[0], '', @left)),
-				return(@string . @fills[0])
-			),
-		1,
-			if(@sep,
-				return(array(@fills[0] . @string, @string, @fills[0], '', @left)),
-				return(@fills[0] . @string)
-			),
-		2,
-			if(@sep,
-				return(array(@fills[0] . @string . @fills[1], @string, @fills[0], @fills[1], @left)),
-				return(@fills[0] . @string . @fills[1])
-			)
-	)
+	if(@array)
+	{
+		return(array(@L_FILLER, @text, @R_FILLER))
+	}
+	else
+	{
+		return(@L_FILLER . @text . @R_FILLER)
+	}
+}
 
-)
+proc _string_filler(@width)
+{
+	if(!is_integral(@width))
+	{
+		throw(CastException, 'Expected an integer for @width')
+	}
 	
+	if(@width == 0) {return('')}
+	
+	#the color for filler characters to use
+	@FILLER_COLOR = color(8)
+	
+	@res = res_create_resource('STRING_BUILDER')
+	
+	while(@width > 5)
+	{
+		string_append(@res,  ' ')
+		@width -= 4
+	}
+
+	switch(@e)
+	{
+		case 5:
+			string_append(@res, color(l) . ' ')
+		case 4:
+			string_append(@res, ' ')
+		case 3:
+			string_append(@res, @FILLER_COLOR . color(l) . '`'),
+		case 2:
+			string_append(@res, @FILLER_COLOR . '`')
+	}
+	
+	@filler = string(@res)
+	res_free_resource(@res)
+	return(@filler)
+}
 
 #returns the location(s) in the string that will cause a wordwrap (override the default width of 320 with @towidth)
-proc(_wordwraps, @string, @towidth,
-
+proc _wordwraps(@string, @towidth)
+{
 	if(is_integer(@towidth),
 		@linewidth = @towidth,
 		@linewidth = 320 #the total width on one line is 320
@@ -201,115 +254,230 @@ proc(_wordwraps, @string, @towidth,
 	)
 
 	return(@wraplocs)
-	
-)
-		
-
-#returns the total pixel width of the string
-proc(_string_width, @string,
-
-	@array = split('', @string)
-	@width = 0
-	
-	@colorcode = false
-
-	foreach(@array, @i, @c,
-	
-		try(@match = reg_match('[0-9a-fA-Fk-or]', @array[@i + 1]), @match = array())
-
-		if(@c == '\u00a7' && @match != array(), 
-			@colorcode = true 
-			continue()
-		)
-
-		if(@colorcode == false, 
-			if(array_contains(_string_colors(@string, @i), 'l'),
-				@width += _char_width(@c) + 1,
-				@width += _char_width(@c)
-			)
-		)
-		
-		@colorcode = false
-	)	
-		
-	return(@width)
-)
+}
 
 #cuts off part of the string so its width is of @max or less, then returns an array containing the section cut out, and the rest of the string.
 #if @wordwrap is true, try to look for nearby spaces instead of cutting in the middle of words
-proc(_truncate, @string, @max, @wordwrap,
-
+proc _string_cut(@string, @width, @wordwrap)
+{
 	@maxwordlength = 15
 	@temp = @string
 
 	@format = _string_colors(@string, length(@string), true)
 
-	@end = length(@string)
+	@end_index = length(@string) #starts the end index at the very end of the string
 
-	@width = _string_width(@string)
-
-	while(@width > @max,
-
-		if(strip_colors(@string[cslice(-2, -1)]) == '', @end -= 3, @end -= 1)
-		
-		@left = substr(@string, @end) . @left
-
-		@string = substr(@string, 0, @end) #cuts one character from the end of the string
-		
-		@width = _string_width(@string)
-		
-		if(@width <= @max && @wordwrap,
-			
+	while(_string_width(substr(@string, 0, @end_index)) > @width)
+	{
+		if(strip_colors(@string[cslice(-2, -1)]) == '') #the last two characters of the string is a color code
+		{
+			@end_index -= 3
+		} 
+		else
+		{
+			@end_index -= 1
+		}
+		if(substr(@string, 0, @end_index) <= @max && @wordwrap)
+		{
 			@loops = 0
+			@temp_end_index = @end_index
+			while(@string[@temp_end_index - 1] != ' ')
+			{
+				@temp_end_index -= 1
 
-			while(@string[@end - 1] != ' ',
-			
-				@end -= 1
+				if(@loops > @maxwordlength) {break()}
+				if(@temp_end_index <= 0) {break()}
 
-				@temp = substr(@string, 0, @end)
-
-				if(@loops > @maxwordlength,
-					
-					break(),
-					
-				)
-				
-				try(@string[@end - 1], break())
-				
 				@loops++
 				
-				if(@string[@end - 1] == ' ',
-				
-					@left = substr(@string, @end) . @left
-					
-					@string = @temp
-
+				if(@string[@temp_end_index - 1] == ' ')
+				{
+					@end_index = @temp_end_index
 					break()
-						
-				)
-			)
-		)
-	)
+				}
+			}
+		}
+	}
+	return(array(substr(@string, 0, @end_index), substr(@string, @end_index)))
+}
+
+#======================================================================================================#
+#	Eval Functions
+#======================================================================================================#
+
+proc _seval(@player = player(), @args)
+{
+	if(player() != 'TheOctopod', die())
 	
-	return(array(@format . @string, @format . @left))
+	@section = array_implode(@args)
+	
+	broadcast(color(8) . '< ' . color(f) . _eval_highlight(@section))
+	
+	if(!import('octolib.eval.multiline') && @section == '>>>',
+		export('octolib.eval.multiline', true)
+		export('octolib.eval.script', '')
+		set_timeout(50, closure(
+			bind(player_chat, null, array(player: player()), @event,
+				cancel()
+				if(@event[message] != '<<<',
+					broadcast(color(8) . '< ' . color(7) . _eval_highlight(@event[message]))
+					export('octolib.eval.script', import('octolib.eval.script') . @event[message] . '\n')
+					return(true)
+				)
+				unbind()
+				chatas(player(), '!eval ' . @event[message])
+			)
+		))
+		return(true)
+	)
+
+	if(import('octolib.eval.multiline'),
+		@script = import('octolib.eval.script')
+		export('octolib.eval.multiline', null)
+		export('octolib.eval.script', ''),
+		@script = @section
+	)
+
+	try(@return = eval(@script), 
+		@ex, 
+		@return = color(c) . @ex[0] . ': ' . color(7) . @ex[1]
+	)
+
+	if(@return == '') {
+		broadcast(color(8) . '> ' . color(7) . '[void]')
+	} else {
+		broadcast(color(8) . '> ' . color(a) . @return)
+	}
+}
+
+proc _eval_highlight(@script)
+{
+	foreach(@class in get_functions())
+	{
+		foreach(@function in @class)
+		{
+			foreach(@n in reg_match_all('(?<![a-zA-Z])' . @function . '(?=\\()', @script))
+			{
+				@script = replace(@script, @n[0], color(a) . @n[0] . color(7))
+			}
+		}
+	}
+	#numbers
+	foreach(@n in reg_match_all('(?<!\u00a7)(?>-?' . '\\d+' . '(?:[\\./]\\d+)' . '?)', @script))
+	{
+		@script = replace(@script, @n[0], color(e) . @n[0] . color(7))
+	}
+	#strings
+	foreach(@n in reg_match_all('\'([^\\\']+|\\\\([btnfr"\'\\\\]|[0-3]?[0-7]{1,2}|u[0-9a-fA-F]{4}))*\'|"([^\\\\\"]+|\\\\([btnfr"\'\\\\]|[0-3]?[0-7]{1,2}|u[0-9a-fA-F]{4}))*"', @script))
+	{
+		@script = replace(@script, @n[0], color(6) . @n[0] . color(7))
+	}
+	#procedures
+	foreach(@n in reg_match_all('(?<![a-zA-Z])' . '_[a-zA-Z0-9]+', @script))
+	{
+		@script = replace(@script, @n[0], color(3) . @n[0] . color(7))
+	}
+	#procedures
+	foreach(@n in reg_match_all('(?<![a-zA-Z])' . '@[a-zA-Z0-9]+', @script))
+	{
+		@script = replace(@script, @n[0], color(d) . @n[0] . color(7))
+	}
+	@script = replace(@script, '{', color(f) . '{' . color(7))
+	@script = replace(@script, '}', color(f) . '}' . color(7))
+	@script = replace(@script, '(', color(f) . '(' . color(7))
+	@script = replace(@script, ')', color(f) . ')' . color(7))
+	@script = replace(@script, 'true', color(9) . 'true' . color(7))
+	@script = replace(@script, 'false', color(9) . 'false' . color(7))
+
+	return(@script)
+}
+
+#======================================================================================================#
+#	Custom Command Functions
+#======================================================================================================#
+
+proc(_cmd_setMode, @boolean, if(@boolean, export('commandMode', true), export('commandMode', false)))
+proc(_cmd_getMode, if(import('commandMode') === false, return(false), return(true)))
+
+proc(_creg, return(call_proc_array('_cmd_register', @arguments)))
+proc(_cmd_register, @commands, @closure, @node,
+	
+	@command_list = import('commandList')
+	@command_links = import('commandLinks')
+	
+	if(!is_array(@command_list), @command_list = array())
+	if(!is_array(@command_links), @command_links = array())
+	
+	@array = array()
+
+	if(@closure == '') { return(false) }
+
+	@array[0] = @node
+	@array[1] = @closure
+
+	@i = array_size(@command_list)
+	
+	@command_list[@i] = @array
+	
+	if(!is_array(@commands), @commands = array(@commands))
+	
+	foreach(@commands, @cmd, @command_links[@cmd] = @i)
+	
+	export('commandList', @command_list)
+	export('commandLinks', @command_links)
+	
+	return(true)
 	
 )
+
+proc(_cmd_unregister, @alias,
+
+	@command_links = import('commandLinks')
+
+	array_remove(@command_links, @alias)
+	
+	export('commandLinks', @command_links)
+
+)
+
+proc _cmd_run(@cString)
+{
+	@commands = import('commandList')
+	@command_links = import('commandLinks')
+	
+	if(!is_array(@command_links), return(false))
+
+	@parsed = parse_args(@cString)
+	
+	if(array_index_exists(@command_links, @parsed[0]),
+
+		@command = @commands[@command_links[@parsed[0]]]
+
+		@cPerm 		= 	@command[0]
+		@cClosure   = 	@command[1]
+		
+		if(@cPerm != '' && !has_permission(player(), @cPerm), return(false))
+
+		@cRoot = parse_args(@cString)[0]
+		@cParsed = parse_args(substr(@cString, length(@cRoot)))
+
+		scriptas(player(), '*', eval(string(@cClosure)))
+		
+		return(true)
+
+	)
+	
+	if(call_alias(@cmd), return(true))
+			
+	return(false)
+}
 
 #======================================================================================================#
 #	Iteration Functions
 #======================================================================================================#
-
-proc(_block_replace, @player, @loc, @from, @to,
-
-	@block = get_block_at(@loc)
-	if(split(':', @block)[0] == @from,
-		psend_block_change(@player, @loc, @to)
-	)
 	
-)
-	
-proc(_iterate_radius, @center, @radius,
-
+proc _iterate_radius(@center, @radius)
+{
 	@locations = array()
 	
 	for(@x = @center[0] - @radius, @x < @center[0] + @radius, @x++) {
@@ -322,9 +490,7 @@ proc(_iterate_radius, @center, @radius,
 	}
 	
 	return(@locations)
-	
-)
-
+}
 	
 
 #======================================================================================================#

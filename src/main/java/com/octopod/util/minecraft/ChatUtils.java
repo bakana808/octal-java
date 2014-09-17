@@ -344,7 +344,9 @@ public class ChatUtils {
 	     * @return The filler as a string.
 	     */
 
-    static public String fillerString(int width, boolean precise, char fillerChar) {
+    static public String fillerString(int width, boolean precise, char fillerChar)
+	{
+		if(width == 0) return "";
 
     	final int fillerCharWidth = width(fillerChar);
         StringBuilder filler = new StringBuilder();
