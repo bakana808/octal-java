@@ -120,6 +120,20 @@ public class YamlConfiguration implements Configuration {
 	}
 
 	@Override
+	public String getString(String key)
+	{
+		return getString(key, "");
+	}
+
+	@Override
+	public String getString(String key, String def)
+	{
+		Object obj = get(key);
+		if(obj == null) return def;
+		return String.valueOf(get(key));
+	}
+
+	@Override
 	public boolean getBoolean(String key)
 	{
 		return getBoolean(key, false);
@@ -165,12 +179,7 @@ public class YamlConfiguration implements Configuration {
 	@SuppressWarnings("unchecked")
 	public List<Integer> getIntList(String key) {return (ArrayList<Integer>)get(key);}
 
-	public String getString(String key)
-	{
-		Object obj = get(key);
-		if(obj == null) return null;
-        return String.valueOf(get(key));
-    }
+
 	
 	@SuppressWarnings("unchecked")
 	public List<String> getStringList(String key)

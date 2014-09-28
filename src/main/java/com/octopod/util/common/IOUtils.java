@@ -34,15 +34,15 @@ public class IOUtils {
 		return copy(input, output, 4096);
 	}
 	
-	public static long copy(InputStream input, OutputStream output, int bufferSize) throws IOException {
+	public static long copy(InputStream input, OutputStream output, int bufferSize) throws IOException
+	{
 		byte[] buffer = new byte[bufferSize];
-		int count = 0;
-		int len = 0;
+		long count = 0;
+		int len;
 		while ((len = input.read(buffer)) != -1) {
 			output.write(buffer, 0, len);
 			count += len;
 		}
-  
 		return count;
 	}
 

@@ -9,6 +9,10 @@ public interface Configuration
 
 	public Object get(String key, Object def);
 
+	public String getString(String key);
+
+	public String getString(String key, String def);
+
 	public int getInt(String key);
 
 	public int getInt(String key, int def);

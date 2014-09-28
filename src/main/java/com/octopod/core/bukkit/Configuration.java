@@ -1,7 +1,8 @@
 package com.octopod.core.bukkit;
 
-import com.octopod.util.minecraft.ChatUtils.ChatColor;
+import com.octopod.util.common.FileUtil;
 import com.octopod.util.configuration.yaml.YamlConfiguration;
+import com.octopod.util.minecraft.chat.ChatColor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,31 +14,37 @@ import java.io.InputStream;
  */
 public class Configuration
 {
-	/**
-	 * The file in which to load the configuration from.
-	 */
-	private final static File configFile = new File(Plugin.dataFolder(), "config.yml");
+
+	private final ServerPlugin plugin;
 
 	/**
 	 * The currently active configuration.
 	 */
-	private static YamlConfiguration config = null;
+	private YamlConfiguration config = null;
 
-	private static InputStream readInternalConfig()
+	private File file;
+
+	public Configuration(ServerPlugin plugin)
 	{
-		return Plugin.classLoader().getResourceAsStream("config.yml");
+		this.plugin = plugin;
+		this.file = new File(plugin.getPluginFolder(), "config.yml");
 	}
 
-	private static InputStream readLocalConfig()
+	private InputStream readInternalConfig()
+	{
+		return plugin.getResource("config.yml");
+	}
+
+	private InputStream readLocalConfig()
 	{
 		try {
-			return new FileInputStream(configFile);
+			return new FileInputStream(file);
 		} catch (IOException e) {
 			return null;
 		}
 	}
 
-	private static boolean isConfigOld()
+	private boolean isConfigOld()
 	{
 		try(InputStream defaultConfigInput = readInternalConfig())
 		{
@@ -53,19 +60,19 @@ public class Configuration
 	 *
 	 * @throws NullPointerException, IOException
 	 */
-	private static YamlConfiguration writeInternalConfig() throws IOException
+	private YamlConfiguration writeInternalConfig() throws IOException
 	{
 		//Backup the old config.yml if it exists
-		if (configFile.exists())
+		if (file.exists())
 		{
 			String fileName = "config.yml.old";
-			File backupConfigFile = new File(Plugin.dataFolder(), fileName);
+			File backupConfigFile = new File(plugin.getPluginFolder(), fileName);
 
 			//Copy the old config to this new backup config.
 			try (InputStream is = readLocalConfig()) {
-				//Util.write(backupConfigFile, is);
+				FileUtil.write(backupConfigFile, is);
 			}
-			Logger.i("Old configuration renamed to " + fileName);
+			plugin.logger().i("Old configuration renamed to " + fileName);
 		}
 		try (InputStream is = readInternalConfig())
 		{
@@ -73,9 +80,9 @@ public class Configuration
 
 			YamlConfiguration config = new YamlConfiguration(is);
 
-			Logger.i("Writing default configuration to config.yml, version " + config.getInt("version"));
+			plugin.logger().i("Writing default configuration to config.yml, version " + config.getInt("version"));
 
-			//Util.write(configFile, is);
+			FileUtil.write(file, is);
 
 			return config;
 		}
@@ -85,11 +92,11 @@ public class Configuration
 	 * Loads the configuration.
 	 * Each created instance of Configuration will load a new config.
 	 */
-	public static void load() throws IOException
+	public void load() throws IOException
 	{
-		Logger.i("Loading Net+ configuration...");
+		plugin.logger().i("Loading Net+ configuration...");
 
-		if (!configFile.exists())
+		if (!file.exists())
 		{
 			//Sets the config from the internal file
 			setConfig(writeInternalConfig());
@@ -104,16 +111,16 @@ public class Configuration
 			}
 		}
 
-		Logger.i(ChatColor.GREEN + "Successfully loaded configuration!");
+		plugin.logger().i(ChatColor.GREEN + "Successfully loaded configuration!");
 	}
 
-	private static void setConfig(YamlConfiguration config)
+	private void setConfig(YamlConfiguration config)
 	{
-		Configuration.config = config;
+		this.config = config;
 	}
 
-	public static YamlConfiguration getConfig()
+	public YamlConfiguration getConfig()
 	{
-		return Configuration.config;
+		return this.config;
 	}
 }

@@ -53,7 +53,7 @@ public class FileUtil {
 			IOUtils.copy(is, os); 
 			is.close();
 			os.close();
-		} catch (IOException e2) {
+		} catch (IOException e) {
 			throw new IOException("Unable to write to this location");
 		}
 		
@@ -65,7 +65,7 @@ public class FileUtil {
 	
 	public static List<String> ls(File path) {
 		
-		List<String> files = new ArrayList<String>();
+		List<String> files = new ArrayList<>();
 		
 		if(!path.isDirectory()) return files;
 		

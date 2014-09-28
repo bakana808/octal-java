@@ -13,23 +13,42 @@ public abstract class Logger
 
 	public abstract void broadcast(String message);
 
-	public static void log(LoggerLevel level, String message)
+	public void log(LoggerLevel level, String message)
 	{
-		Plugin.logger().broadcast(message, level.getPermission().toString());
+		broadcast(message, level.getPermission().toString());
 	}
 
-	public static void i(String message)
+	public void i(String message)
 	{
 		log(LoggerLevel.INFO, message);
 	}
 
-	public static void w(String message)
+	public void w(String message)
 	{
 		log(LoggerLevel.WARNING, message);
 	}
 
-	public static void v(String message)
+	public void v(String message)
 	{
 		log(LoggerLevel.VERBOSE, message);
+	}
+
+	public static enum LoggerLevel
+	{
+		INFO(Permission.LOGGER_INFO),
+		WARNING(Permission.LOGGER_WARNING),
+		VERBOSE(Permission.LOGGER_VERBOSE);
+
+		Permission permission;
+
+		private LoggerLevel(Permission perm)
+		{
+			permission = perm;
+		}
+
+		public Permission getPermission()
+		{
+			return permission;
+		}
 	}
 }

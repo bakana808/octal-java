@@ -1,58 +1,158 @@
 package com.octopod.util;
 
-import java.util.ArrayList;
-import java.util.List;
+/**
+ * @author Octopod - octopodsquad@gmail.com
+ */
+public class Vector
+{
+	private double x, y, z;
 
-public class Vector {
-	
-	double X, Y, Z;
-	
-	public Vector() {this(0, 0, 0);}
-	public Vector(double x, double y, double z) {
-		this.X = x;
-		this.Y = y;
-		this.Z = z;
-	}
-	
-	public String toString() {return "[" + X + ", " + Y + ", " + Z + "]";}
-	
-	public Vector copy() {return new Vector(X, Y, Z);}
-	
-	public double magnitude() {return Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2) + Math.pow(Z, 2));}
-
-	//Converts into an ArrayList
-	public List<Double> asList() {
-		List<Double> vec = new ArrayList<Double>();
-		vec.add(X); vec.add(Y); vec.add(Z);
-		return vec;
+	public Vector(double x, double y, double z)
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
-	//Converts current vector to have a magnitude of 1 (the direction stays the same)
-	public void normalize() {
-		double m = magnitude();
-		if(m == 0) return;
-		X /= m; Y /= m; Z /= m;
+	public Vector(Vector vec)
+	{
+		this(vec.X(), vec.Y(), vec.Z());
 	}
 
-	//Calculates distance from another vector
-	public double distance(Vector vec) {
-		double x = Math.pow(X - vec.X, 2);
-		double y = Math.pow(Y - vec.Y, 2);
-		double z = Math.pow(Z - vec.Z, 2);
-		return Math.sqrt(x + y + z);
+	public double X() {return x;}
+	public double Y() {return y;}
+	public double Z() {return z;}
+
+	/**
+	 * Adds this vector and another vector
+	 *
+	 * @param x the x component
+	 * @param y the y component
+	 * @param z the z component
+	 * @return a new vector
+	 */
+	public Vector add(double x, double y, double z)
+	{
+		return new Vector(this.x + x, this.y + y, this.z * z);
 	}
-	
-	//Multiplies all indexes by 'x'
-	public void mult(double x) {X *= x; Y *= x; Z *= x;}
-	
-	//Adds current vector to another vector
-	public void add(Vector vec) {X += vec.X; Y += vec.Y; Z += vec.Z;}
-	
-	public void floor() {
-		X = Math.floor(X);
-		Y = Math.floor(Y);
-		Z = Math.floor(Z);
+
+	/**
+	 * Adds this vector and another vector
+	 *
+	 * @param vec the other vector
+	 * @return a new vector
+	 */
+	public Vector add(Vector vec)
+	{
+		return add(vec.x, vec.y, vec.z);
 	}
-	
-	
+
+	/**
+	 * Multiplies this vector by another vector
+	 *
+	 * @param x the x component
+	 * @param y the y component
+	 * @param z the z component
+	 * @return a new vector
+	 */
+	public Vector multiply(double x, double y, double z)
+	{
+		return new Vector(this.x * x, this.y * y, this.z * z);
+	}
+
+	/**
+	 * Multiplies this vector by another vector
+	 *
+	 * @param vec the other vector
+	 * @return a new vector
+	 */
+	public Vector multiply(Vector vec)
+	{
+		return multiply(vec.x, vec.y, vec.z);
+	}
+
+	/**
+	 * Multiplies this vector by an amount
+	 *
+	 * @param x the number to multiply by
+	 * @return a new vector
+	 */
+	public Vector multiply(double x)
+	{
+		return multiply(x, x, x);
+	}
+
+	public Vector divide(double x, double y, double z)
+	{
+		return new Vector(this.x / x, this.y / y, this.z / z);
+	}
+
+	public Vector divide(Vector vec)
+	{
+		return divide(vec.x, vec.y, vec.z);
+	}
+
+	public Vector divide(double x)
+	{
+		return divide(x, x, x);
+	}
+
+	public double dot(Vector vec)
+	{
+		return x * vec.x + y * vec.y + z * vec.z;
+	}
+
+	public Vector floor()
+	{
+		return new Vector(Math.floor(x), Math.floor(y), Math.floor(z));
+	}
+
+	/**
+	 * Gets the magnitude of this vector
+	 *
+	 * @return the magnitude of this vector
+	 */
+	public double magnitude()
+	{
+		return Math.sqrt(x * x + y * y + z * z);
+	}
+
+	/**
+	 * Converts this vector into a unit vector
+	 *
+	 * @return a new vector
+	 */
+	public Vector normalize()
+	{
+		return divide(magnitude());
+	}
+
+	/**
+	 * Gets the distance between this vector and another vector
+	 *
+	 * @param vec the other vector
+	 * @return the distance between the two vectors
+	 */
+	public double distance(Vector vec)
+	{
+		return Math.sqrt(
+			Math.pow(x - vec.x, 2) +
+			Math.pow(y - vec.y, 2) +
+			Math.pow(z - vec.z, 2)
+		);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if(!(obj instanceof Vector)) return false;
+		Vector vec = (Vector)obj;
+		return vec.x == x && vec.y == y && vec.z == z;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "[" + x + ", " + y + ", " + z + "]";
+	}
 }

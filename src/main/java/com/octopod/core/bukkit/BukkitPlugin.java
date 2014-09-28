@@ -1,25 +1,26 @@
 package com.octopod.core.bukkit;
 
-import com.octopod.util.minecraft.ChatUtils;
+import com.octopod.util.minecraft.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.InputStream;
 
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public abstract class Plugin extends JavaPlugin
+public abstract class BukkitPlugin extends JavaPlugin implements ServerPlugin
 {
-	private static Plugin self = null;
-	private static Logger logger = null;
+	private static BukkitPlugin self = null;
+	private Logger logger = null;
 
-	public static Plugin self() {return self;}
-	public static Logger logger() {return logger;}
+	public static BukkitPlugin self() {return self;}
+	public Logger logger() {return logger;}
 
-	public static ClassLoader classLoader() {return self.getClassLoader();}
-	public static File dataFolder() {return self.getDataFolder();}
+	public InputStream getResource(String path) {return self.getClassLoader().getResourceAsStream(path);}
+	public File getPluginFolder() {return self.getDataFolder();}
 
 	@Override
 	public void onEnable()
@@ -44,24 +45,24 @@ public abstract class Plugin extends JavaPlugin
 		private BukkitLogger(){}
 		public void broadcast(String message, String permission)
 		{
-			Bukkit.broadcast(ChatUtils.colorize(message), permission);
+			Bukkit.broadcast(Chat.colorize(message), permission);
 		}
 
 		public void broadcast(String message)
 		{
-			Bukkit.broadcastMessage(ChatUtils.colorize(message));
+			Bukkit.broadcastMessage(Chat.colorize(message));
 		}
 
 		public void console(String message)
 		{
-			Bukkit.getConsoleSender().sendMessage(ChatUtils.colorize(message));
+			Bukkit.getConsoleSender().sendMessage(Chat.colorize(message));
 		}
 
 		public void player(String ID, String message)
 		{
 			Player player = getPlayer(ID);
 			if(player != null) {
-				player.sendMessage(ChatUtils.colorize(message));
+				player.sendMessage(Chat.colorize(message));
 			}
 		}
 
