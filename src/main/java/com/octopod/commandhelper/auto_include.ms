@@ -4,21 +4,20 @@
 
 #	Author: Octopod 
 #	E-mail: octopodsquad@gmail.com
-# 	Last Updated: 9 / 16 / 2014
+# 	Last Updated: 9 / 28 / 2014
 
 #======================================================================================================#
 #	Advanced String Functions
 #======================================================================================================#
 
 #returns the width of characters (assume that if a character isn't in this list, its width is 6)
-#returns the width of characters (assume that if a character isn't in this list, its width is 6)
-proc _string_width(@char)
+proc _string_width(@string)
 {
-	if(length(@char) == 0) {return(0)} #no string; return 0
-	if(length(@char) == 1) #this is a character
+	if(length(@string) == 0) {return(0)} #no string; return 0
+	if(length(@string) == 1) #this is a character
 	{
 		#feel free to add more cases to this switch if you find more special characters
-		switch(@char)
+		switch(@string)
 		{
 			case '\u00a7':  @width = 0; #section sign
 			case '\u2019':  @width = 2; #reverse quotation character
