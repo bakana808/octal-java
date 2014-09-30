@@ -6,6 +6,9 @@ Also doubles as a chat aligner.
 Make sure your implementation of a minecraft player implements the ChatReciever class
 so they they can be sent messages by ChatBuilder.
 
+As of 1.7, JSON-styled text does not support the newline character. So for now, just
+create multiple builders for each line.
+
 Examples
 ------
 Creating colored / formatted text:
@@ -28,9 +31,12 @@ Creating text that runs a command:
 new ChatBuilder().append("[suicide]").run("/kill").send(player);
 ```
 
-Creating text on multiple lines:
+Creating text on multiple lines (workaround)
 ```java
-new ChatBuilder().append("Line 1").newline().append("Line 2").send(player);
+ChatBuilder[] lines = Chat.makeBuilders(2);
+lines[0].append("Line 1");
+lines[1].append("Line 2");
+Chat.send(player, lines);
 ```
 
 Creating aligned text (with a width of 100 and LEFT alignment):

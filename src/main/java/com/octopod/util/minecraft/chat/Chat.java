@@ -99,15 +99,28 @@ public class Chat
         return JSONValue.toJSONString(json);
     }
 
-	public static void send(ChatReciever target, ChatBuilder builder)
+	public static void send(ChatReciever target, ChatBuilder... builders)
 	{
-       target.sendJsonMessage(builder.toString());
+		for(ChatBuilder builder: builders)
+		{
+			target.sendJsonMessage(builder.toJSONString());
+		}
 	}
 
 	public static void send(ChatReciever target, String json)
 	{
 		target.sendJsonMessage(json);
     }
+
+	public static ChatBuilder[] makeBuilders(int lines)
+	{
+		ChatBuilder[] builders = new ChatBuilder[lines];
+		for(int i = 0; i < lines; i++)
+		{
+			builders[i] = new ChatBuilder();
+		}
+		return builders;
+	}
 
 	public static String colorize(String message)
 	{
@@ -126,16 +139,13 @@ public class Chat
 	 * @return The legacy chat string.
 	 */
 
-	public static String toLegacy(ChatBuilder builder) {
-		return toLegacy(builder.toElementList());
+	public static String toLegacyString(ChatBuilder builder)
+	{
+		return toLegacyString(builder.toElementList());
 	}
 
-    public static String toLegacy(ChatElement... elements) {
-        return toLegacy(Arrays.asList(elements));
-    }
-
-	public static String toLegacy(List<ChatElement> elements) {
-
+    public static String toLegacyString(ChatElement... elements)
+	{
 		StringBuilder sb = new StringBuilder();
 
 		for(ChatElement e: elements) {
@@ -147,7 +157,21 @@ public class Chat
 		}
 
 		return sb.toString();
+    }
 
+	public static String toLegacyString(List<ChatElement> elements)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		for(ChatElement e: elements) {
+			sb.append(e.getColor());
+			for(ChatFormat format: e.getFormats()) {
+				sb.append(format);
+			}
+			sb.append(e.getText());
+		}
+
+		return sb.toString();
 	}
 
 	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
@@ -226,22 +250,22 @@ public class Chat
 	@SuppressWarnings("deprecation")
 	public static String itemtoJSON(ItemStack item) {
 
-		Map<String, Object> json = new HashMap<String, Object>();
+		Map<String, Object> toJSONString = new HashMap<String, Object>();
 		Map<String, Object> meta = new HashMap<String, Object>();
 		Map<String, Object> display = new HashMap<String, Object>();
 
-		json.put("id", item.getTypeId());
-		json.put("Damage", (int)item.getData().getData());
-		json.put("Count", item.getAmount());
+		toJSONString.put("id", item.getTypeId());
+		toJSONString.put("Damage", (int)item.getData().getData());
+		toJSONString.put("Count", item.getAmount());
 
 		try{
 			display.put("Name", item.getItemMeta().getDisplayName());
 			meta.put("display", display);
 		} catch (NullPointerException e) {}
 
-		json.put("tag", meta);
+		toJSONString.put("tag", meta);
 
-		return JSONValue.toJSONString(json);
+		return JSONValue.toJSONString(toJSONString);
 
 	}
 	*/
@@ -366,7 +390,7 @@ public class Chat
 
     static public ChatBuilder block(ChatElement element, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
 	{
-        return block(toLegacy(element), toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_CHAT);
+        return block(toLegacyString(element), toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_CHAT);
     }
 
     final static ChatColor FILLER_COLOR = ChatColor.DARK_GRAY;
@@ -481,37 +505,19 @@ public class Chat
     	return text.substring(start, end);
     }
 
-	public static List<String> jsonChatBuilder(ChatBuilder builder)
+	public static String toJSONString(ChatBuilder builder)
 	{
-		List<String> json_lines = new ArrayList<>();
-		List<ChatElement> tempElements = new ArrayList<>();
-		for(ChatElement element: builder.toElementList())
-		{
-			if(element == null)
-			{
-				Map<String, Object> json = new HashMap<>();
-				json.put("text", "");
-				json.put("extra", tempElements);
-				json_lines.add(JSONValue.toJSONString(json));
-				tempElements = new ArrayList<>();
-			}
-			else
-			{
-				tempElements.add(element);
-			}
-		}
-		if(tempElements.size() > 0)
-		{
-			Map<String, Object> json = new HashMap<>();
-			json.put("text", "");
-			json.put("extra", tempElements);
-			json_lines.add(JSONValue.toJSONString(json));
-		}
-		return json_lines;
+		List<ChatElement> elements = builder.toElementList();
+
+		Map<String, Object> json = new HashMap<>();
+		json.put("text", "");
+		json.put("extra", elements);
+
+		return JSONValue.toJSONString(json);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static String jsonChatElement(ChatElement element)
+	public static String toJSONString(ChatElement element)
 	{
 		if
 		(

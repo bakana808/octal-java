@@ -26,12 +26,6 @@ public class ChatBuilder
 		append(text);
 	}
 
-	public ChatBuilder newline()
-	{
-		elements.add(null);
-		return this;
-	}
-
 	public ChatBuilder defaultColor(ChatColor color)
 	{
 		this.color = color;
@@ -68,6 +62,14 @@ public class ChatBuilder
 		if (index < 0 || index >= elements.size())
 		{
 			throw new IllegalArgumentException("Following ChatBuilder index out of bounds: " + index);
+		}
+	}
+
+	private void validateNotNull(Object object, String message)
+	{
+		if(object == null)
+		{
+			throw new IllegalArgumentException(message);
 		}
 	}
 
@@ -136,22 +138,26 @@ public class ChatBuilder
 
 	private void push(Collection<ChatElement> list)
 	{
+		validateNotNull(list, "ChatElement list cannot be null");
 		elements.addAll(list);
 	}
 
 	private void push(ChatElement... array)
 	{
+		validateNotNull(array, "ChatElement array cannot be null");
 		elements.addAll(Arrays.asList(array));
 	}
 
 	private void push(int index, Collection<ChatElement> list)
 	{
+		validateNotNull(list, "ChatElement list cannot be null");
 		validateIndex(index);
 		elements.addAll(index, list);
 	}
 
 	private void push(int index, ChatElement... array)
 	{
+		validateNotNull(array, "ChatElement array cannot be null");
 		validateIndex(index);
 		for(int i = elements.size() - 1; i >= 0; i--)
 		{
@@ -231,7 +237,8 @@ public class ChatBuilder
 	 */
 	public ChatBuilder append(ChatBuilder builder)
 	{
-		return append(builder.toElementList());
+		push(builder.toElementList());
+		return selectLast();
 	}
 
 	public ChatBuilder insert(int index, Object object)
@@ -518,10 +525,7 @@ public class ChatBuilder
 	 */
 	public void send(ChatReciever player)
 	{
-		for(String json: json())
-		{
-			Chat.send(player, json);
-		}
+		Chat.send(player, toJSONString());
 	}
 
 	/**
@@ -531,11 +535,16 @@ public class ChatBuilder
 	 */
 	public String toLegacyString()
 	{
-		return Chat.toLegacy(this);
+		return Chat.toLegacyString(this);
 	}
 
-	public List<String> json()
+	public String toJSONString()
 	{
-		return Chat.jsonChatBuilder(this);
+		return Chat.toJSONString(this);
+	}
+
+	public String toString()
+	{
+		return Chat.toJSONString(this);
 	}
 }

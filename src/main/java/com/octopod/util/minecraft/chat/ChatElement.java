@@ -156,15 +156,24 @@ public class ChatElement
 		hover_value = value;
 		return this;
 	}
+
+	public String toLegacyString()
+	{
+		return Chat.toLegacyString(this);
+	}
+
+	public String toJSONString()
+	{
+		return Chat.toJSONString(this);
+	}
 	
 	/**
 	 * Returns the JSON Representation of this object.
 	 * This representation is valid for Minecraft's JSON chat.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String toString()
 	{
-		return Chat.jsonChatElement(this);
+		return Chat.toJSONString(this);
 	}
 
 }
