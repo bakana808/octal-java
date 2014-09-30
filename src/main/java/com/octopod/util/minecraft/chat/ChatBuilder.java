@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -122,12 +123,34 @@ public class ChatBuilder
 		return elements.get(index);
 	}
 
+	private void remove(int index)
+	{
+		validateIndex(index);
+		elements.remove(index);
+	}
+
+	private void remove_last()
+	{
+		remove(elements.size() - 1);
+	}
+
+	private void push(Collection<ChatElement> list)
+	{
+		elements.addAll(list);
+	}
+
 	private void push(ChatElement... array)
 	{
 		elements.addAll(Arrays.asList(array));
 	}
 
-	private void insert(int index, ChatElement... array)
+	private void push(int index, Collection<ChatElement> list)
+	{
+		validateIndex(index);
+		elements.addAll(index, list);
+	}
+
+	private void push(int index, ChatElement... array)
 	{
 		validateIndex(index);
 		for(int i = elements.size() - 1; i >= 0; i--)
@@ -139,6 +162,19 @@ public class ChatBuilder
 	public ChatBuilder append(Object object)
 	{
 		push(new ChatElement(object.toString(), color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends an object to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param object the object
+	 * @param color the color of the object
+	 * @param formats the formats of the object
+	 */
+	public ChatBuilder append(Object object, ChatColor color, ChatFormat... formats)
+	{
+		push(new ChatElement(object, color, formats));
 		return selectLast();
 	}
 
@@ -167,47 +203,13 @@ public class ChatBuilder
 	}
 
 	/**
-	 * Appends an object to the end of the builder and selects it, while setting color and formats.
-	 *
-	 * @param object the object
-	 * @param color the color of the object
-	 * @param formats the formats of the object
-	 */
-	public ChatBuilder append(Object object, ChatColor color, ChatFormat... formats)
-	{
-		push(new ChatElement(object.toString(), color, formats));
-		return selectLast();
-	}
-
-	/**
-	 * Appends text (colorized according to '&' color codes) to the end of the builder and selects it.
-	 *
-	 * @param text the text
-	 */
-	public ChatBuilder appendLegacy(String text)
-	{
-		return append(Chat.colorize(text));
-	}
-
-	/**
-	 * Appends text (colorized according to a custom color code) to the end of the builder and selects it.
-	 *
-	 * @param text the text
-	 * @param code the color code
-	 */
-	public ChatBuilder appendLegacy(String text, char code)
-	{
-		return append(Chat.colorize(text, code));
-	}
-
-	/**
 	 * Appends a list of elements to the end of the builder and selects the last one.
 	 *
 	 * @param list the list of elements
 	 */
 	public ChatBuilder append(List<ChatElement> list)
 	{
-		push(list.toArray(new ChatElement[list.size()]));
+		push(list);
 		return selectLast();
 	}
 
@@ -218,7 +220,8 @@ public class ChatBuilder
 	 */
 	public ChatBuilder append(ChatElement... array)
 	{
-		return append(Arrays.asList(array));
+		push(array);
+		return selectLast();
 	}
 
 	/**
@@ -231,30 +234,124 @@ public class ChatBuilder
 		return append(builder.toElementList());
 	}
 
+	public ChatBuilder insert(int index, Object object)
+	{
+		push(index, new ChatElement(object.toString(), color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends an object to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param object the object
+	 * @param color the color of the object
+	 * @param formats the formats of the object
+	 */
+	public ChatBuilder insert(int index, Object object, ChatColor color, ChatFormat... formats)
+	{
+		push(index, new ChatElement(object, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends text to the end of the builder and selects it.
+	 *
+	 * @param text the text to append
+	 */
+	public ChatBuilder insert(int index, String text)
+	{
+		push(index, new ChatElement(text, color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends text to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param text the text
+	 * @param color the color of the text
+	 * @param formats the formats of the text
+	 */
+	public ChatBuilder index(int index, String text, ChatColor color, ChatFormat... formats)
+	{
+		push(index, new ChatElement(text, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends a list of elements to the end of the builder and selects the last one.
+	 *
+	 * @param list the list of elements
+	 */
+	public ChatBuilder append(int index, List<ChatElement> list)
+	{
+		push(index, list);
+		return selectLast();
+	}
+
+	/**
+	 * Appends an array of elements to the end of the builder and selects the last one.
+	 *
+	 * @param array an array of elements
+	 */
+	public ChatBuilder insert(int index, ChatElement... array)
+	{
+		push(index, array);
+		return selectLast();
+	}
+
+	/**
+	 * Appends all elements from another builder to the end of this builder and selects the last one.
+	 *
+	 * @param builder the other builder
+	 */
+	public ChatBuilder insert(int index, ChatBuilder builder)
+	{
+		return append(index, builder.toElementList());
+	}
+
+	/**
+	 * Appends text (colorized according to '&' color codes) to the end of the builder and selects it.
+	 *
+	 * @param text the text
+	 */
+	public ChatBuilder legacy(String text)
+	{
+		return append(Chat.colorize(text));
+	}
+
+	/**
+	 * Appends text (colorized according to a custom color code) to the end of the builder and selects it.
+	 *
+	 * @param text the text
+	 * @param code the color code
+	 */
+	public ChatBuilder legacy(String text, char code)
+	{
+		return append(Chat.colorize(text, code));
+	}
+
 	/**
 	 * Appends a list of elements to the beginning of the builder and selects the last one.
 	 *
 	 * @param list the list of elements
 	 */
-	public ChatBuilder appendFront(List<ChatElement> list)
+	public ChatBuilder front(List<ChatElement> list)
 	{
-		insert(0, list.toArray(new ChatElement[list.size()]));
+		push(0, list);
 		return selectLast();
 	}
 
-	public ChatBuilder appendFront(ChatElement... elements)
+	public ChatBuilder front(ChatElement... elements)
 	{
-		return append(elements);
+		push(0, elements);
+		return selectLast();
 	}
 
-	public ChatBuilder block(String text, int width, ChatAlignment alignment)
+	public ChatBuilder block(int width, ChatAlignment alignment)
 	{
-		return append(Chat.block(text, width, alignment));
-	}
-
-	public ChatBuilder block(ChatElement element, int width, ChatAlignment alignment)
-	{
-		return append(Chat.block(element, width, alignment));
+		ChatBuilder block = Chat.block(selection, width, alignment);
+		remove_last();
+		return append(block);
 	}
 
 	/**
@@ -318,7 +415,7 @@ public class ChatBuilder
 	 * @param event The ChatHoverEvent to use.
 	 * @param value The value, as a string.
 	 */
-	public ChatBuilder click(ClickEvent event, String value)
+	public ChatBuilder click(ChatClickEvent event, String value)
 	{
 		if (selection != null)
 			selection.click(event, value);
@@ -327,22 +424,22 @@ public class ChatBuilder
 
 	public ChatBuilder run(String command)
 	{
-		return click(ClickEvent.RUN_COMMAND, command);
+		return click(ChatClickEvent.RUN_COMMAND, command);
 	}
 
 	public ChatBuilder suggest(String command)
 	{
-		return click(ClickEvent.SUGGEST_COMMAND, command);
+		return click(ChatClickEvent.SUGGEST_COMMAND, command);
 	}
 
 	public ChatBuilder link(String url)
 	{
-		return click(ClickEvent.OPEN_URL, url);
+		return click(ChatClickEvent.OPEN_URL, url);
 	}
 
 	public ChatBuilder file(String path)
 	{
-		return click(ClickEvent.OPEN_FILE, path);
+		return click(ChatClickEvent.OPEN_FILE, path);
 	}
 
 	/**
@@ -351,7 +448,7 @@ public class ChatBuilder
 	 * @param event The ChatHoverEvent to use.
 	 * @param value The value, as a string.
 	 */
-	public ChatBuilder hover(HoverEvent event, String value)
+	public ChatBuilder hover(ChatHoverEvent event, String value)
 	{
 		if (selection != null)
 			selection.hover(event, value);
@@ -360,22 +457,22 @@ public class ChatBuilder
 
 	public ChatBuilder tooltip(String... lines)
 	{
-		return hover(HoverEvent.SHOW_TEXT, StringUtils.join(lines, "\n"));
+		return hover(ChatHoverEvent.SHOW_TEXT, StringUtils.join(lines, "\n"));
 	}
 
 	public ChatBuilder tooltip(ChatBuilder builder)
 	{
-		return hover(HoverEvent.SHOW_TEXT, builder.toLegacy());
+		return hover(ChatHoverEvent.SHOW_TEXT, builder.toLegacyString());
 	}
 
 	public ChatBuilder achievement(String name)
 	{
-		return hover(HoverEvent.SHOW_ACHIEVEMENT, name);
+		return hover(ChatHoverEvent.SHOW_ACHIEVEMENT, name);
 	}
 
 	public ChatBuilder item(String json)
 	{
-		return hover(HoverEvent.SHOW_ITEM, json);
+		return hover(ChatHoverEvent.SHOW_ITEM, json);
 	}
 
 	/**
@@ -428,11 +525,11 @@ public class ChatBuilder
 	}
 
 	/**
-	 * Returns this object as a appendLegacy chat string. Actually just a shortcut to the static toLegacy method.
+	 * Returns this object as a legacy chat string. Actually just a shortcut to the static toLegacyString method.
 	 *
 	 * @return Legacy chat string
 	 */
-	public String toLegacy()
+	public String toLegacyString()
 	{
 		return Chat.toLegacy(this);
 	}

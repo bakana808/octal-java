@@ -14,20 +14,38 @@ public class ChatElement
 {
 	public ChatElement(Object object)
 	{
-		this(object.toString(), ChatColor.WHITE, null, null, new ChatFormat[0]);
+		this.text = object.toString();
+	}
+
+	public ChatElement(Object object, ChatColor color, ChatFormat... formats)
+	{
+		this.text = object.toString();
+		this.color = color;
+		this.formats = formats;
+	}
+
+	public ChatElement(Object object, ChatColor color, ChatClickEvent click, ChatHoverEvent hover, ChatFormat... formats)
+	{
+		this.text = object.toString();
+		this.color = color;
+		this.click = click;
+		this.hover = hover;
+		this.formats = formats;
 	}
 
 	public ChatElement(String text)
 	{
-		this(text, ChatColor.WHITE, null, null, new ChatFormat[0]);
+		this.text = text;
 	}
 	
 	public ChatElement(String text, ChatColor color, ChatFormat... formats)
 	{
-		this(text, color, null, null, formats);
+		this.text = text;
+		this.color = color;
+		this.formats = formats;
 	}
 
-	public ChatElement(String text, ChatColor color, ClickEvent click, HoverEvent hover, ChatFormat... formats)
+	public ChatElement(String text, ChatColor color, ChatClickEvent click, ChatHoverEvent hover, ChatFormat... formats)
 	{
 		this.text = text;
 		this.color = color;
@@ -40,18 +58,18 @@ public class ChatElement
 	private boolean translate = false;
 	private List<String> with = new ArrayList<>();
 	
-	private ChatColor color;
-	private ChatFormat[] formats;
+	private ChatColor color = ChatColor.WHITE;
+	private ChatFormat[] formats = {};
 	
-	private ClickEvent click;
+	private ChatClickEvent click = null;
 	private String click_value = "";
 	
-	private HoverEvent hover;
+	private ChatHoverEvent hover = null;
 	private String hover_value = "";
 	
 	//Variable getters
-	public ClickEvent 	getClick() 		{return click;}
-	public HoverEvent 	getHover() 		{return hover;}
+	public ChatClickEvent getClick() 		{return click;}
+	public ChatHoverEvent getHover() 		{return hover;}
 	public String 		getClickValue() {return click_value;}
 	public String 		getHoverValue() {return hover_value;}
 	public String 		getText() 		{return text;}
@@ -115,12 +133,12 @@ public class ChatElement
 	
 	/**
 	 * Sets click action of this ChatElement.
-	 * The ClickEvent enums are located in Chat.
-	 * How the value is used depends on the ClickEvent.
-	 * @param click The ClickEvent to set this ChatElement to.
+	 * The ChatClickEvent enums are located in Chat.
+	 * How the value is used depends on the ChatClickEvent.
+	 * @param click The ChatClickEvent to set this ChatElement to.
 	 * @param value The value.
 	 */
-	public ChatElement click(ClickEvent click, String value) {
+	public ChatElement click(ChatClickEvent click, String value) {
 		this.click = click;
 		click_value = value;
 		return this;
@@ -128,12 +146,12 @@ public class ChatElement
 	
 	/**
 	 * Sets hover action of this ChatElement.
-	 * The HoverEvent enums are located in Chat.
-	 * How the value is used depends on the HoverEvent.
-	 * @param hover The ClickEvent to set this ChatElement to.
+	 * The ChatHoverEvent enums are located in Chat.
+	 * How the value is used depends on the ChatHoverEvent.
+	 * @param hover The ChatClickEvent to set this ChatElement to.
 	 * @param value The value.
 	 */	
-	public ChatElement hover(HoverEvent hover, String value) {
+	public ChatElement hover(ChatHoverEvent hover, String value) {
 		this.hover = hover;
 		hover_value = value;
 		return this;

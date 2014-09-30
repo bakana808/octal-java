@@ -120,10 +120,10 @@ public class Chat
 	}
 
 	/**
-	 * Converts a ChatBuilder object to Minecraft appendLegacy chat string.
+	 * Converts a ChatBuilder object to Minecraft legacy chat string.
 	 * Obviously, hover and click events won't carry over.
 	 * @param builder The ChatBuilder object to convert
-	 * @return The appendLegacy chat string.
+	 * @return The legacy chat string.
 	 */
 
 	public static String toLegacy(ChatBuilder builder) {
@@ -153,8 +153,8 @@ public class Chat
 	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
 
 	/**
-	 * Converts Minecraft appendLegacy chat to a ChatBuilder object.
-	 * @param message The appendLegacy chat string to convert
+	 * Converts Minecraft legacy chat to a ChatBuilder object.
+	 * @param message The legacy chat string to convert
 	 * @return A new ChatBuilder object.
 	 */
 
@@ -251,7 +251,7 @@ public class Chat
 		public T render(String left, String text, String right);
 	}
 
-	private static BlockRenderer<String> RENDERER_RAW = new BlockRenderer<String>()
+	private static BlockRenderer<String> BLOCK_RENDERER_STRING = new BlockRenderer<String>()
 	{
 		@Override
 		public String render(String left, String text, String right)
@@ -260,7 +260,7 @@ public class Chat
 		}
 	};
 
-	private static BlockRenderer<ChatBuilder> RENDERER_CHAT = new BlockRenderer<ChatBuilder>()
+	private static BlockRenderer<ChatBuilder> BLOCK_RENDERER_CHAT = new BlockRenderer<ChatBuilder>()
 	{
 		@Override
 		public ChatBuilder render(String left, String text, String right)
@@ -271,6 +271,29 @@ public class Chat
 				new ChatElement(text),
 				new ChatElement(right)
 			);
+		}
+	};
+
+	private static interface FillerRenderer <T>
+	{
+		public T render(String filler);
+	}
+
+	private static FillerRenderer<String> FILLER_RENDERER_STRING = new FillerRenderer<String>()
+	{
+		@Override
+		public String render(String filler)
+		{
+			return filler;
+		}
+	};
+
+	private static FillerRenderer<ChatElement> FILLER_RENDERER_CHAT = new FillerRenderer<ChatElement>()
+	{
+		@Override
+		public ChatElement render(String filler)
+		{
+			return new ChatElement(filler);
 		}
 	};
 
@@ -292,7 +315,6 @@ public class Chat
         final int totalFillerWidth = toWidth - width(cutText);
 
         int lFillerWidth, rFillerWidth;
-        String lFiller, rFiller;
 
         switch(alignment) {
         	case LEFT:
@@ -314,27 +336,17 @@ public class Chat
                 break;
         }
 
-       lFiller = fillerRaw(lFillerWidth, precise, fillerChar);
-       rFiller = fillerRaw(rFillerWidth, precise, fillerChar);
-
-       return renderer.render(lFiller, cutText, rFiller);
+       return renderer.render(filler(lFillerWidth, precise, fillerChar, FILLER_RENDERER_STRING), cutText, filler(rFillerWidth, precise, fillerChar, FILLER_RENDERER_STRING));
     }
 
-    static public String blockRaw(String text, int toWidth, ChatAlignment alignment)
+    static public String blockString(String text, int toWidth, ChatAlignment alignment)
 	{
-    	return blockRaw(text, toWidth, alignment, ' ', true);
+    	return blockString(text, toWidth, alignment, ' ', true);
     }
 
-    static public String blockRaw(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
+    static public String blockString(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
 	{
-        return block(text, toWidth, alignment, fillerChar, precise, new BlockRenderer<String>()
-		{
-			@Override
-			public String render(String left, String text, String right)
-			{
-		        return left + text + right;
-			}
-        });
+        return block(text, toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_STRING);
     }
 
 	static public ChatBuilder block(String text, int toWidth, ChatAlignment alignment)
@@ -344,7 +356,7 @@ public class Chat
 
 	static public ChatBuilder block(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
 	{
-		return block(text, toWidth, alignment, fillerChar, precise, RENDERER_CHAT);
+		return block(text, toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_CHAT);
 	}
 
     static public ChatBuilder block(ChatElement element, int toWidth, ChatAlignment alignment)
@@ -352,15 +364,15 @@ public class Chat
     	return block(element, toWidth, alignment, ' ', true);
     }
 
-    static public ChatBuilder block(ChatElement element, int toWidth,ChatAlignment alignment, char fillerChar, boolean precise)
+    static public ChatBuilder block(ChatElement element, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
 	{
-        return block(toLegacy(element), toWidth, alignment, fillerChar, precise, RENDERER_CHAT);
+        return block(toLegacy(element), toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_CHAT);
     }
 
     final static ChatColor FILLER_COLOR = ChatColor.DARK_GRAY;
 
-    public final static String FILLER_2PX_RAW = "\u2019";
-	public final static ChatElement FILLER_2PX = new ChatElement(FILLER_2PX_RAW, FILLER_COLOR);
+    public final static String FILLER_2PX_RAW = FILLER_COLOR + "\u2019";
+	public final static ChatElement FILLER_2PX = new ChatElement(FILLER_2PX_RAW);
 
 	/**
 	 * Creates a filler for use in Minecraft's chat. It's a more raw function used to align text.
@@ -369,12 +381,12 @@ public class Chat
 	 * @param customFiller The character to use primarily during the filler (should be a space most of the time)
 	 * @return The filler as a string.
 	 */
-    static public String fillerRaw(int width, boolean precise, char customFiller)
+    static public <T> T filler(int width, boolean precise, char customFiller, FillerRenderer<T> renderer)
 	{
 		if(width < 0) throw new IllegalArgumentException("Filler width cannot be less than 0!");
-		if(width == 0) return "";
+		if(width == 0) return renderer.render("");
 		if(width == 1) throw new IllegalArgumentException("A filler cannot be a pixel wide");
-		if(width == 2) return FILLER_2PX_RAW;
+		if(width == 2) return renderer.render(FILLER_2PX_RAW);
 
     	final int customFillerWidth = width(customFiller);
         StringBuilder filler = new StringBuilder();
@@ -411,8 +423,7 @@ public class Chat
                 break;
         }
 
-        return filler.toString();
-
+        return renderer.render(filler.toString());
     }
 
     static public ChatElement filler(int width)
@@ -422,8 +433,7 @@ public class Chat
 
     static public ChatElement filler(int width, boolean precise, char emptyFiller)
 	{
-    	ChatElement filler = new ChatElement(fillerRaw(width, precise, emptyFiller));
-    	return filler.color(FILLER_COLOR);
+    	return filler(width, precise, emptyFiller, FILLER_RENDERER_CHAT);
     }
 
     static public String cut(String text, int width)
@@ -440,19 +450,35 @@ public class Chat
 	 */
 	static public String cut(String text, int width, boolean wrap, int wrap_threshold)
 	{
-    	String extra = text;
     	int start = 0;
-    	int end = extra.length();
+    	int end = text.length();
 
-    	while(width(extra.substring(start, end)) > width || width - width(extra.substring(start, end)) == 1) {
+    	while(width(text.substring(start, end)) > width)
+		{
     		end--;
+			if(width(text.substring(start, end)) <= width && wrap)
+			{
+				int lookbehind = 0; //Amount of characters looked at behind the end index
+				int temp_end = end; //Temporary end marker
+				while(text.charAt(temp_end - 1) != ' ')
+				{
+					temp_end--;
+
+					if(lookbehind > wrap_threshold) break;
+					if(temp_end <= 0) break;
+
+					lookbehind++;
+
+					if(text.charAt(temp_end - 1) == ' ')
+					{
+						end = temp_end;
+						break;
+					}
+				}
+			}
     	}
-    	
-    	text = extra.substring(start, end);
-    	extra = extra.substring(end);
 
-    	return text;
-
+    	return text.substring(start, end);
     }
 
 	public static List<String> jsonChatBuilder(ChatBuilder builder)

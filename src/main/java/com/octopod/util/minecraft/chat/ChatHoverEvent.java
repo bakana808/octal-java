@@ -3,10 +3,9 @@ package com.octopod.util.minecraft.chat;
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public enum ClickEvent
+public enum ChatHoverEvent
 {
-	OPEN_URL,
-	OPEN_FILE,
-	RUN_COMMAND,
-	SUGGEST_COMMAND
+	SHOW_TEXT,
+	SHOW_ACHIEVEMENT,
+	SHOW_ITEM
 }
