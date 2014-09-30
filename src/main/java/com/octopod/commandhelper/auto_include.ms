@@ -83,12 +83,20 @@ proc _string_width(@string)
 	}
 }
 
-#finds the applied formats to a position in a string
-proc _string_colors(@string, @pos, @colorize)
+/*
+    Finds all applied formats at a position in a string.
+
+    @text the text to use
+    @pos the position in the string
+    @colorize if true, returns an empty string with all found formats applied to it.
+
+    Returns an array of each format code applied, or an empty string of each format applied to it.
+*/
+proc _string_colors(@text, @pos, @colorize)
 {
 	@formats = array()
 	
-	@colors = reg_match_all('\u00a7[0-9a-fA-Fk-or]', substr(@string, 0, @pos))
+	@colors = reg_match_all('\u00a7[0-9a-fA-Fk-or]', substr(@text, 0, @pos))
 
 	foreach(@color in @colors)
 	{
@@ -102,6 +110,7 @@ proc _string_colors(@string, @pos, @colorize)
 	}
 	
 	if(@colorize,
+		@premade = ''
 		foreach(@format in @formats)
 		{
 			@premade .= color(@format)
@@ -112,10 +121,14 @@ proc _string_colors(@string, @pos, @colorize)
 }
 
 /*
-	Creates a block of text matching @width.
-	Alignments: 0 = left, 1 = right, 2 = center
-	If @array is true, it will give you an array containing the fillers and text
-	instead of combining them.
+	Creates a block of text matching @width, by generating fillers to the left and right of it as needed.
+
+	@text the text to use
+	@width the width to match to
+	@alignment an integer representing alignment; 0: left, 1: right, 2: center
+	@array if true, will give you an array containing the fillers and text instead of combining them.
+
+	Returns a string with the fillers attached, or an array with both fillers and text as elements.
 */
 proc _text(@text, @width, @alignment, @array = false)
 {
@@ -123,18 +136,18 @@ proc _text(@text, @width, @alignment, @array = false)
 	{
 		throw(CastException, 'Expected an integer for @width')
 	}
-	
+
 	if(!is_integral(@alignment))
 	{
 		throw(CastException, 'Expected an integer for @alignment')
 	}
-	
+
 	if(!is_boolean(@array))
 	{
 		throw(CastException, 'Expected a boolean for @array')
 	}
-	
-	@text = _string_cut(colorize(@text), @width, @wordwrap)[0]
+
+	@text = _string_cut(colorize(@text), @width, false)[0]
 
 	#the width of the filler to generate
 	@TOTAL_FILLER_WIDTH = @width - _string_width(@text)
@@ -154,12 +167,10 @@ proc _text(@text, @width, @alignment, @array = false)
 			@L_FILLER_WIDTH = 0
 			@R_FILLER_WIDTH = @TOTAL_FILLER_WIDTH
 	}
-	
+
 	@L_FILLER = _string_filler(@L_FILLER_WIDTH)
 	@R_FILLER = _string_filler(@R_FILLER_WIDTH)
 
-	if(@align == '', @align = 0)
-	
 	if(@array)
 	{
 		return(array(@L_FILLER, @text, @R_FILLER))
@@ -170,36 +181,41 @@ proc _text(@text, @width, @alignment, @array = false)
 	}
 }
 
+/*
+    Creates filler that matches @width.
+    As these fillers are "fake" width extenders, you cannot create a filler with a width of 1.
+
+*/
 proc _string_filler(@width)
 {
 	if(!is_integral(@width))
 	{
 		throw(CastException, 'Expected an integer for @width')
 	}
-	
+
 	if(@width == 0) {return('')}
-	
+
 	#the color for filler characters to use
 	@FILLER_COLOR = color(8)
-	
+
 	@res = res_create_resource('STRING_BUILDER')
-	
+
 	while(@width > 5)
 	{
 		string_append(@res,  ' ')
 		@width -= 4
 	}
 
-	switch(@e)
+	switch(@width)
 	{
 		case 5:
-			string_append(@res, color(l) . ' ')
+			string_append(@res, color(l) . ' ' . color(r))
 		case 4:
 			string_append(@res, ' ')
 		case 3:
-			string_append(@res, @FILLER_COLOR . color(l) . '`'),
+			string_append(@res, @FILLER_COLOR . color(l) . '`' . color(r)),
 		case 2:
-			string_append(@res, @FILLER_COLOR . '`')
+			string_append(@res, @FILLER_COLOR . '`' . color(r))
 	}
 	
 	@filler = string(@res)
