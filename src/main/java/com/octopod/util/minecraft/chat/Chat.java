@@ -49,8 +49,8 @@ public class Chat
 	 * Returns the width of the inserted character, according to Minecraft's default chat font (in pixels)
 	 * Most characters are 6 pixels wide.
 	 *
-	 * @param character The text to use for calculation.
-	 * @return The width of the text inserted. (in pixels)
+	 * @param character The setText to use for calculation.
+	 * @return The width of the setText inserted. (in pixels)
 	 */
 	static public int width(char character)
 	{
@@ -60,10 +60,10 @@ public class Chat
 	}
 
 	/**
-	 * Returns the width of the text inserted into the function.
+	 * Returns the width of the setText inserted into the function.
 	 * Note that bolded characters are 1 pixel wider than normal.
-	 * @param text The text to use for calculation.
-	 * @return The width of the text inserted. (in pixels)
+	 * @param text The setText to use for calculation.
+	 * @return The width of the setText inserted. (in pixels)
 	 */
 	static public int width(String text)
 	{
@@ -91,36 +91,10 @@ public class Chat
 		return width;
 	}
 
-    public static String toJson(List<ChatElement> elements)
-	{
-        Map<Object, Object> json = new HashMap<>();
-        json.put("text", "");
-        json.put("extra", elements);
-        return JSONValue.toJSONString(json);
-    }
-
-	public static void send(ChatReciever target, ChatBuilder... builders)
-	{
-		for(ChatBuilder builder: builders)
-		{
-			target.sendJsonMessage(builder.toJSONString());
-		}
-	}
-
 	public static void send(ChatReciever target, String json)
 	{
 		target.sendJsonMessage(json);
     }
-
-	public static ChatBuilder[] makeBuilders(int lines)
-	{
-		ChatBuilder[] builders = new ChatBuilder[lines];
-		for(int i = 0; i < lines; i++)
-		{
-			builders[i] = new ChatBuilder();
-		}
-		return builders;
-	}
 
 	public static String colorize(String message)
 	{
@@ -138,43 +112,41 @@ public class Chat
 	 * @param builder The ChatBuilder object to convert
 	 * @return The legacy chat string.
 	 */
-
-	public static String toLegacyString(ChatBuilder builder)
-	{
-		return toLegacyString(builder.toElementList());
-	}
-
     public static String toLegacyString(ChatElement... elements)
 	{
 		StringBuilder sb = new StringBuilder();
 
-		for(ChatElement e: elements) {
-			sb.append(e.getColor());
-			for(ChatFormat format: e.getFormats()) {
-				sb.append(format);
-			}
-			sb.append(e.getText());
+		for(ChatElement e: elements)
+		{
+			sb.append(toLegacyString(e));
 		}
 
 		return sb.toString();
     }
 
-	public static String toLegacyString(List<ChatElement> elements)
+	public static String toLegacyString(ChatElement element)
 	{
 		StringBuilder sb = new StringBuilder();
 
-		for(ChatElement e: elements) {
-			sb.append(e.getColor());
-			for(ChatFormat format: e.getFormats()) {
+		sb.append(element.getColor());
+		for(ChatFormat format: element.getFormats())
+		{
+			sb.append(format);
+		}
+		sb.append(element.getText());
+
+		for(ChatElement extra: element.getExtraElements()) {
+			sb.append(extra.getColor());
+			for(ChatFormat format: extra.getFormats()) {
 				sb.append(format);
 			}
-			sb.append(e.getText());
+			sb.append(extra.getText());
 		}
 
 		return sb.toString();
 	}
 
-	public static ChatBuilder fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
+	public static ChatElement fromLegacy(String message) {return fromLegacy(message, '\u00A7');}
 
 	/**
 	 * Converts Minecraft legacy chat to a ChatBuilder object.
@@ -182,9 +154,9 @@ public class Chat
 	 * @return A new ChatBuilder object.
 	 */
 
-	public static ChatBuilder fromLegacy(String message, char colorCode) {
+	public static ChatElement fromLegacy(String message, char colorCode) {
 
-		ChatBuilder cb = new ChatBuilder();
+		ChatElement cb = new ChatElement();
 
 		StringBuilder text = new StringBuilder();
 		boolean nextIsColorCode = false;
@@ -226,11 +198,11 @@ public class Chat
 		return cb;
 	}
 
-	public static ChatBuilder join(ChatBuilder builder, ChatElement glue) {return join(builder, glue, glue);}
-	public static ChatBuilder join(ChatBuilder builder, ChatElement glue, ChatElement lastGlue)
+	public static ChatElement join(ChatElement builder, ChatElement glue) {return join(builder, glue, glue);}
+	public static ChatElement join(ChatElement builder, ChatElement glue, ChatElement lastGlue)
 	{
-		ChatBuilder newBuilder = new ChatBuilder();
-		List<ChatElement> elements = builder.toElementList();
+		ChatElement newBuilder = new ChatElement();
+		List<ChatElement> elements = builder.getExtraElements();
 		if(elements.size() > 0) {
 			newBuilder.append(elements.get(0));
 			for(int i = 1; i < elements.size(); i++) {
@@ -284,17 +256,15 @@ public class Chat
 		}
 	};
 
-	private static BlockRenderer<ChatBuilder> BLOCK_RENDERER_CHAT = new BlockRenderer<ChatBuilder>()
+	private static BlockRenderer<ChatElement> BLOCK_RENDERER_CHAT = new BlockRenderer<ChatElement>()
 	{
 		@Override
-		public ChatBuilder render(String left, String text, String right)
+		public ChatElement render(String left, String text, String right)
 		{
-			return new ChatBuilder().append
-			(
-				new ChatElement(left),
-				new ChatElement(text),
-				new ChatElement(right)
-			);
+			return new ChatElement().
+				appendif(!left.equals(""), left, FILLER_COLOR).
+				append(text).
+				appendif(!right.equals(""), right, FILLER_COLOR);
 		}
 	};
 
@@ -322,14 +292,14 @@ public class Chat
 	};
 
 	/**
-	 * Creates a block of text with a variable width. Useful for aligning text into columns on multiple lines.
+	 * Creates a block of setText with a variable width. Useful for aligning setText into columns on multiple lines.
 	 * @param text The string to insert
-	 * @param toWidth The width to fit the text to in pixels. (Will cut the text if toWidth is shorter than it)
-	 * @param alignment Which way to align the text. (0: left, 1: right, 2: center)
+	 * @param toWidth The width to fit the setText to in pixels. (Will cut the setText if toWidth is shorter than it)
+	 * @param alignment Which way to align the setText. (0: left, 1: right, 2: center)
 	 * @param fillerChar The primary character to use for filling. Usually a space.
 	 * @param precise Whether or not to use filler characters to perfectly match the width (this will create artifacts in the filler)
 	 * @param renderer The interface that this method will use to build the return object.
-	 * @return The text fitted to toWidth.
+	 * @return The setText fitted to toWidth.
 	 */
     static private <T> T block(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise, BlockRenderer<T> renderer)
 	{
@@ -373,22 +343,22 @@ public class Chat
         return block(text, toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_STRING);
     }
 
-	static public ChatBuilder block(String text, int toWidth, ChatAlignment alignment)
+	static public ChatElement block(String text, int toWidth, ChatAlignment alignment)
 	{
 		return block(text, toWidth, alignment, ' ', true);
 	}
 
-	static public ChatBuilder block(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
+	static public ChatElement block(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
 	{
 		return block(text, toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_CHAT);
 	}
 
-    static public ChatBuilder block(ChatElement element, int toWidth, ChatAlignment alignment)
+    static public ChatElement block(ChatElement element, int toWidth, ChatAlignment alignment)
 	{
     	return block(element, toWidth, alignment, ' ', true);
     }
 
-    static public ChatBuilder block(ChatElement element, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
+    static public ChatElement block(ChatElement element, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise)
 	{
         return block(toLegacyString(element), toWidth, alignment, fillerChar, precise, BLOCK_RENDERER_CHAT);
     }
@@ -399,7 +369,7 @@ public class Chat
 	public final static ChatElement FILLER_2PX = new ChatElement(FILLER_2PX_RAW);
 
 	/**
-	 * Creates a filler for use in Minecraft's chat. It's a more raw function used to align text.
+	 * Creates a filler for use in Minecraft's chat. It's a more raw function used to align setText.
 	 * @param width The width of the filler (in pixels)
 	 * @param precise Whether or not to use filler characters to perfectly match the width (this will create artifacts in the filler)
 	 * @param customFiller The character to use primarily during the filler (should be a space most of the time)
@@ -466,11 +436,11 @@ public class Chat
     }
 
 	/**
-	 * Returns the truncated version of text to be of toWidth or less.
-	 * The text will be returned unmodified if toWidth is wider than the width of the text.
+	 * Returns the truncated version of setText to be of toWidth or less.
+	 * The setText will be returned unmodified if toWidth is wider than the width of the setText.
 	 * TODO: Make this function return a list of strings instead of just the first one
-	 * @param text The text to use for calculation.
-	 * @return The width of the text inserted. (in pixels)
+	 * @param text The setText to use for calculation.
+	 * @return The width of the setText inserted. (in pixels)
 	 */
 	static public String cut(String text, int width, boolean wrap, int wrap_threshold)
 	{
@@ -505,31 +475,25 @@ public class Chat
     	return text.substring(start, end);
     }
 
-	public static String toJSONString(ChatBuilder builder)
+	public static String toJSONString(ChatElement... elements)
 	{
-		List<ChatElement> elements = builder.toElementList();
+		Map<Object, Object> json = new HashMap<>();
+		json.put("text", "");
+		json.put("extra", Arrays.asList(elements));
+		return JSONValue.toJSONString(json);
+	}
 
-		Map<String, Object> json = new HashMap<>();
+	public static String toJSONString(List<ChatElement> elements)
+	{
+		Map<Object, Object> json = new HashMap<>();
 		json.put("text", "");
 		json.put("extra", elements);
-
 		return JSONValue.toJSONString(json);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String toJSONString(ChatElement element)
 	{
-		if
-		(
-			element.getColor() == ChatColor.WHITE &&
-			element.getFormats().length == 0 &&
-			element.getClick() == null &&
-			element.getHover() == null
-		)
-		{
-			return JSONValue.toJSONString(element.getText());
-		}
-
 		String text = element.getText();
 		boolean translate = element.getTranslate();
 		List<String> with = element.getTranslateWith();
@@ -542,6 +506,11 @@ public class Chat
 				json.put("with", with);
 		} else {
 			json.put("text", text);
+		}
+
+		if(element.isPlain())
+		{
+			return JSONValue.toJSONString(json);
 		}
 
 		if(element.getClick() != null)
@@ -565,9 +534,14 @@ public class Chat
 			json.put(format.name().toLowerCase(), true);
 		}
 
-		if(element.getColor() != ChatColor.WHITE)
+		if(element.getColor() != null)
 		{
 			json.put("color", element.getColor().name().toLowerCase());
+		}
+
+		if(element.getExtraElements().size() > 0)
+		{
+			json.put("extras", element.getSimpleExtraElements());
 		}
 
 		return JSONValue.toJSONString(json);

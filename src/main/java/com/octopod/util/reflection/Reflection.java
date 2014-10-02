@@ -5,7 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReflectionUtils {
+public class Reflection {
 	
 	public static List<Field> getFields(Object instance) {
 		List<Field> fields = new ArrayList<Field>();
@@ -19,8 +19,8 @@ public class ReflectionUtils {
 		return setField(instance, fieldName, value, true);
 	}
 	
-	public static <T> T setField(T instance, String fieldName, Object value, boolean force) throws ReflectionException{
-
+	public static <T> T setField(T instance, String fieldName, Object value, boolean force) throws ReflectionException
+	{
 		Field field = null;
 		
 		try {
@@ -57,7 +57,6 @@ public class ReflectionUtils {
 		}
 		
 		return instance;
-		
 	}
 
 }

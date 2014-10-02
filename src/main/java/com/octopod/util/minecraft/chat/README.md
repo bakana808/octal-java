@@ -13,33 +13,38 @@ Examples
 ------
 Creating colored / formatted text:
 ```java
-new ChatBuilder().append("bold red").color(ChatColor.RED).formats(ChatColor.BOLD).send(player);
+new ChatElement("bold red").color(ChatColor.RED).formats(ChatColor.BOLD).send(player);
+```
+
+Creating colored / formatted text (consolidated):
+```java
+new ChatElement("bold red", ChatColor.RED, ChatColor.BOLD).send(player);
 ```
 
 Creating colored / formatted text (legacy):
 ```java
-new ChatBuilder().append(Chat.colorize("&c&lbold red")).send(player);
+new ChatElement(Chat.colorize("&c&lbold red")).send(player);
 ```
 
 Creating text with a tooltip:
 ```java
-new ChatBuilder().append("text").tooltip("more text").send(player);
+new ChatElement("text").tooltip("more text", "even more text").send(player);
 ```
 
 Creating text that runs a command:
 ```java
-new ChatBuilder().append("[suicide]").run("/kill").send(player);
+new ChatElement("[suicide]").run("/kill").send(player);
 ```
 
-Creating text on multiple lines (workaround)
+Creating text on multiple lines
 ```java
-ChatBuilder[] lines = Chat.makeBuilders(2);
-lines[0].append("Line 1");
-lines[1].append("Line 2");
-Chat.send(player, lines);
+ChatBuilder cb = new ChatBuilder()
+cb.newline().append("Blue Line").color(ChatColor.BLUE);
+cb.newline().append("Red Line").color(ChatColor.RED);
+cb.send(player);
 ```
 
 Creating aligned text (with a width of 100 and LEFT alignment):
 ```java
-new ChatBuilder().append("Text").block(100, ChatAlignment.LEFT).send(player);
+new ChatElement().append("Text").block(100, ChatAlignment.LEFT).send(player);
 ```

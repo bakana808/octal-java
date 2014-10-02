@@ -1,7 +1,10 @@
 package com.octopod.util.minecraft.chat;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -12,6 +15,11 @@ import java.util.List;
  */
 public class ChatElement
 {
+	public ChatElement()
+	{
+
+	}
+
 	public ChatElement(Object object)
 	{
 		this.text = object.toString();
@@ -54,11 +62,11 @@ public class ChatElement
 		this.formats = formats;
 	}
 
-	private String text;
+	private String text = "";
 	private boolean translate = false;
 	private List<String> with = new ArrayList<>();
 	
-	private ChatColor color = ChatColor.WHITE;
+	private ChatColor color = null;
 	private ChatFormat[] formats = {};
 	
 	private ChatClickEvent click = null;
@@ -66,97 +74,644 @@ public class ChatElement
 	
 	private ChatHoverEvent hover = null;
 	private String hover_value = "";
-	
-	//Variable getters
-	public ChatClickEvent getClick() 		{return click;}
-	public ChatHoverEvent getHover() 		{return hover;}
-	public String 		getClickValue() {return click_value;}
-	public String 		getHoverValue() {return hover_value;}
-	public String 		getText() 		{return text;}
-	public ChatColor 	getColor() 		{return color;}
-	public ChatFormat[] getFormats() 	{return formats;}
-	public boolean		getTranslate() {return translate;}
-	public List<String> getTranslateWith() {return with;}
+
+	private List<ChatElement> extras = new ArrayList<>();
+	private ChatElement selection = this;
 
 	/**
-	 * Sets the text of this ChatElement.
-	 * @param text The text to change to.
+	 * Returns if the element is plain; white text, no formatting, no events, and no extras
+	 *
+	 * @return if the element is plain
+	 */
+	public boolean isPlain()
+	{
+		return
+			color == null &&
+			formats.length == 0 &&
+			click == null &&
+			hover == null &&
+			extras.size() == 0;
+	}
+	
+	//Variable getters
+	public ChatClickEvent 	getClick() 		{return click;}
+	public ChatHoverEvent 	getHover() 		{return hover;}
+	public String 			getClickValue() {return click_value;}
+	public String 			getHoverValue() {return hover_value;}
+	public String 			getText() 		{return text;}
+	public ChatColor 		getColor() 		{return color;}
+	public ChatFormat[] 	getFormats() 	{return formats;}
+	public boolean			getTranslate() {return translate;}
+	public List<String> 	getTranslateWith() {return with;}
+
+	/**
+	 * Returns a list of the extra elements
+	 *
+	 * @return the extra elements
+	 */
+	public List<ChatElement> getExtraElements()
+	{
+		return extras;
+	}
+
+	public List<Object> getSimpleExtraElements()
+	{
+		List<Object> list = new ArrayList<>();
+		for(ChatElement element: extras)
+		{
+			if(element.isPlain())
+			{
+				list.add(element.getText());
+			} else {
+				list.add(element);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * Returns a list with this element as the first index, and the extra elements following.
+	 *
+	 * @return all the elements
+	 */
+	public List<ChatElement> getAllElements()
+	{
+		List<ChatElement> elements = new ArrayList<>();
+		elements.add(this);
+		elements.addAll(extras);
+		return elements;
+	}
+
+	/**
+	 * Sets the text of this element.
+	 *
+	 * @param text the text of the element
+	 */
+	public ChatElement setText(String text)
+	{
+		this.text = text;
+		this.translate = false;
+		return this;
+	}
+
+	/**
+	 * Sets the text of this element.
+	 * Set <code>translate</code> to true if the text should be translated.
+	 *
+	 * @param text the text of the element
+	 * @param translate whether to translate the text or not
 	 */		
-	public ChatElement text(String text)
+	public ChatElement setText(String text, boolean translate)
 	{
 		this.text = text;
+		this.translate = translate;
 		return this;
 	}
-	
+
 	/**
-	 * Sets whether the text of the ChatElement should be translated or not.
-	 * Translation refers to Minecraft's localization system, where it converts nodes to the appropriate language.
-	 * @param text the text to translate
-	 */			
-	public ChatElement translate(String text)
-	{
-		this.text = text;
-		this.translate = true;
-		return this;
-	}
-	
-	/**
-	 * Sets the color of the ChatElement.
-	 * The Color enums are located in Chat.
-	 * @param color The Color to set this ChatElement to.
-	 */				
-	public ChatElement color(ChatColor color)
+	 * Sets the color of this element.
+	 * Not to be confused with color(), which is for the selected element.
+	 *
+	 * @param color the color of the element
+	 */
+	public ChatElement setColor(ChatColor color)
 	{
 		this.color = color;
 		return this;
 	}
 
 	/**
-	 * Sets the active format(s) of the ChatElement.
-	 * The Format enums are located in Chat.
-	 * @param formats The Format(s) to set this ChatElement to.
+	 * Sets the color of the selected element.
+	 *
+	 * @param color the color of the element
 	 */
-	public ChatElement format(ChatFormat... formats)
+	public ChatElement color(ChatColor color)
 	{
-		List<ChatFormat> list = new ArrayList<>(Arrays.asList(this.formats));
-		for(ChatFormat format: formats)
-		{
-			if(!list.contains(format))
-			{
-				list.add(format);
-			}
-		}
-		this.formats = new ChatFormat[list.size()];
-		list.toArray(this.formats);
-		return this;
-	}
-	
-	/**
-	 * Sets click action of this ChatElement.
-	 * The ChatClickEvent enums are located in Chat.
-	 * How the value is used depends on the ChatClickEvent.
-	 * @param click The ChatClickEvent to set this ChatElement to.
-	 * @param value The value.
-	 */
-	public ChatElement click(ChatClickEvent click, String value) {
-		this.click = click;
-		click_value = value;
-		return this;
-	}
-	
-	/**
-	 * Sets hover action of this ChatElement.
-	 * The ChatHoverEvent enums are located in Chat.
-	 * How the value is used depends on the ChatHoverEvent.
-	 * @param hover The ChatClickEvent to set this ChatElement to.
-	 * @param value The value.
-	 */	
-	public ChatElement hover(ChatHoverEvent hover, String value) {
-		this.hover = hover;
-		hover_value = value;
+		selection.setColor(color);
 		return this;
 	}
 
+	/**
+	 * Sets the format(s) of this element.
+	 * Not to be confused with format(), which is for the selected element.
+	 *
+	 * @param formats the formats of the element
+	 */
+	public ChatElement setFormat(ChatFormat... formats)
+	{
+		this.formats = formats;
+		return this;
+	}
+
+	/**
+	 * Sets the format(s) of the selected element.
+	 *
+	 * @param formats the formats of the element
+	 */
+	public ChatElement format(ChatFormat... formats)
+	{
+		selection.formats = formats;
+		return this;
+	}
+
+	public ChatElement bold() {return format(ChatFormat.BOLD);}
+
+	public ChatElement italic() {return format(ChatFormat.ITALIC);}
+
+	public ChatElement underline() {return format(ChatFormat.UNDERLINED);}
+
+	public ChatElement strikethrough() {return format(ChatFormat.STRIKETHROUGH);}
+
+	public ChatElement obfuscate() {return format(ChatFormat.OBFUSCATED);}
+
+	/**
+	 * Sets the click event of this element.
+	 *
+	 * @param click the click event
+	 * @param value the value of the event
+	 */
+	public ChatElement setClick(ChatClickEvent click, String value)
+	{
+		this.click = click;
+		this.click_value = value;
+		return this;
+	}
+
+	/**
+	 * Sets the click event of the selected element.
+	 *
+	 * @param click the click event
+	 * @param value the value of the event
+	 */
+	public ChatElement click(ChatClickEvent click, String value)
+	{
+		selection.click = click;
+		selection.click_value = value;
+		return this;
+	}
+
+	public ChatElement run(String command)
+	{
+		return click(ChatClickEvent.RUN_COMMAND, command);
+	}
+
+	public ChatElement suggest(String command)
+	{
+		return click(ChatClickEvent.SUGGEST_COMMAND, command);
+	}
+
+	public ChatElement link(String url)
+	{
+		return click(ChatClickEvent.OPEN_URL, url);
+	}
+
+	public ChatElement file(String path)
+	{
+		return click(ChatClickEvent.OPEN_FILE, path);
+	}
+
+	/**
+	 * Sets the hover event of this element.
+	 *
+	 * @param hover the hover event
+	 * @param value the value of the event
+	 */
+	public ChatElement setHover(ChatHoverEvent hover, String value)
+	{
+		this.hover = hover;
+		this.hover_value = value;
+		return this;
+	}
+
+	/**
+	 * Sets the hover event of the selected element.
+	 *
+	 * @param hover the hover event
+	 * @param value the value of the event
+	 */
+	public ChatElement hover(ChatHoverEvent hover, String value)
+	{
+		selection.hover = hover;
+		selection.hover_value = value;
+		return this;
+	}
+
+	public ChatElement tooltip(String... lines)
+	{
+		return hover(ChatHoverEvent.SHOW_TEXT, StringUtils.join(lines, "\n"));
+	}
+
+	public ChatElement tooltip(ChatElement element)
+	{
+		return hover(ChatHoverEvent.SHOW_TEXT, element.toLegacyString());
+	}
+
+	public ChatElement achievement(String name)
+	{
+		return hover(ChatHoverEvent.SHOW_ACHIEVEMENT, name);
+	}
+
+	public ChatElement item(String json)
+	{
+		return hover(ChatHoverEvent.SHOW_ITEM, json);
+	}
+
+	/**
+	 * Selects an extra element by index
+	 *
+	 * @param index the index of the element
+	 *
+	 * @throws IllegalArgumentException if the index doesn't exist
+	 */
+	public ChatElement selectElement(int index)
+	{
+		validateIndex(index);
+		selection = getElementAt(index);
+		return this;
+	}
+
+	/**
+	 * Selects this element.
+	 */
+	public ChatElement selectBase()
+	{
+		selection = this;
+		return this;
+	}
+
+	/**
+	 * Selects the last extra element.
+	 */
+	public ChatElement selectLast()
+	{
+		selection = getElementLast();
+		return this;
+	}
+
+	private void validateIndex(int index)
+	{
+		if (index < 0 || index >= extras.size())
+		{
+			throw new IllegalArgumentException("Following ChatElement index out of bounds: " + index);
+		}
+	}
+
+	private void validateNotNull(Object object, String message)
+	{
+		if(object == null)
+		{
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	/**
+	 * The total amount of elements.
+	 *
+	 * @return size of elements.
+	 */
+	public int size()
+	{
+		return extras.size();
+	}
+
+
+	/**
+	 * Gets the last ChatElement
+	 *
+	 * @return The last ChatElement.
+	 */
+	public ChatElement getElementLast()
+	{
+		return getElementAt(extras.size() - 1);
+	}
+
+	/**
+	 * Gets the currently selected ChatElement.
+	 *
+	 * @return The currently selected ChatElement.
+	 */
+	public ChatElement getElementSelection()
+	{
+		return selection;
+	}
+
+	/**
+	 * Gets the ChatElement at the specified index.
+	 *
+	 * @throws IllegalArgumentException if the index is out of bounds
+	 * @return the selection
+	 */
+	public ChatElement getElementAt(int index)
+	{
+		validateIndex(index);
+		return extras.get(index);
+	}
+
+	private void remove(int index)
+	{
+		validateIndex(index);
+		extras.remove(index);
+	}
+
+	private void remove_last()
+	{
+		remove(extras.size() - 1);
+	}
+
+	private void push(Collection<ChatElement> list)
+	{
+		validateNotNull(list, "ChatElement list cannot be null");
+		extras.addAll(list);
+	}
+
+	private void push(ChatElement... array)
+	{
+		validateNotNull(array, "ChatElement array cannot be null");
+		extras.addAll(Arrays.asList(array));
+	}
+
+	private void push(int index, Collection<ChatElement> list)
+	{
+		validateNotNull(list, "ChatElement list cannot be null");
+		validateIndex(index);
+		extras.addAll(index, list);
+	}
+
+	private void push(int index, ChatElement... array)
+	{
+		validateNotNull(array, "ChatElement array cannot be null");
+		validateIndex(index);
+		for(int i = extras.size() - 1; i >= 0; i--)
+		{
+			extras.add(index, array[i]);
+		}
+	}
+
+	public ChatElement appendif(boolean b, String text, ChatColor color, ChatFormat... formats)
+	{
+		if(b) append(text, color, formats);
+		return this;
+	}
+
+	public ChatElement appendif(boolean b, String text)
+	{
+		if(b) append(text);
+		return this;
+	}
+
+	/**
+	 * Appends a space and text at the end of the element.
+	 *
+	 * @param text the text to append
+	 */
+	public ChatElement sappend(String text)
+	{
+		push(new ChatElement(" "), new ChatElement(text));
+		return selectLast();
+	}
+
+	public ChatElement append(Object object)
+	{
+		push(new ChatElement(object.toString(), color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends an object to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param object the object
+	 * @param color the color of the object
+	 * @param formats the formats of the object
+	 */
+	public ChatElement append(Object object, ChatColor color, ChatFormat... formats)
+	{
+		push(new ChatElement(object, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends setText to the end of the builder and selects it.
+	 *
+	 * @param text the text to append
+	 */
+	public ChatElement append(String text)
+	{
+		push(new ChatElement(text, color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends setText to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param text the text to append
+	 * @param color the color of the text
+	 * @param formats the formats of the text
+	 */
+	public ChatElement append(String text, ChatColor color, ChatFormat... formats)
+	{
+		push(new ChatElement(text, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends a list of elements to the end of the builder and selects the last one.
+	 *
+	 * @param list the list of elements
+	 */
+	public ChatElement append(List<ChatElement> list)
+	{
+		push(list);
+		return selectLast();
+	}
+
+	/**
+	 * Appends an array of elements to the end of the builder and selects the last one.
+	 *
+	 * @param array an array of elements
+	 */
+	public ChatElement append(ChatElement... array)
+	{
+		push(array);
+		return selectLast();
+	}
+
+	/**
+	 * Appends all elements from another builder to the end of this builder and selects the last one.
+	 *
+	 * @param builder the other builder
+	 */
+	public ChatElement append(ChatElement builder)
+	{
+		push(builder.getExtraElements());
+		return selectLast();
+	}
+
+	public ChatElement insert(int index, Object object)
+	{
+		push(index, new ChatElement(object.toString(), color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends an object to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param object the object
+	 * @param color the color of the object
+	 * @param formats the formats of the object
+	 */
+	public ChatElement insert(int index, Object object, ChatColor color, ChatFormat... formats)
+	{
+		push(index, new ChatElement(object, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends text to the end of the builder and selects it.
+	 *
+	 * @param text the text to append
+	 */
+	public ChatElement insert(int index, String text)
+	{
+		push(index, new ChatElement(text, color));
+		return selectLast();
+	}
+
+	/**
+	 * Appends text to the end of the builder and selects it, while setting color and formats.
+	 *
+	 * @param text the text to append
+	 * @param color the color of the text
+	 * @param formats the formats of the text
+	 */
+	public ChatElement insert(int index, String text, ChatColor color, ChatFormat... formats)
+	{
+		push(index, new ChatElement(text, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends a list of elements to the end of the builder and selects the last one.
+	 *
+	 * @param list the list of elements
+	 */
+	public ChatElement append(int index, List<ChatElement> list)
+	{
+		push(index, list);
+		return selectLast();
+	}
+
+	/**
+	 * Appends an array of elements to the end of the builder and selects the last one.
+	 *
+	 * @param array an array of elements
+	 */
+	public ChatElement insert(int index, ChatElement... array)
+	{
+		push(index, array);
+		return selectLast();
+	}
+
+	/**
+	 * Appends text (colorized according to '&' color codes) to the end of the builder and selects it.
+	 *
+	 * @param text the text of the element
+	 */
+	public ChatElement legacy(String text)
+	{
+		return append(Chat.colorize(text));
+	}
+
+	/**
+	 * Appends text (colorized according to a custom color code) to the end of the builder and selects it.
+	 *
+	 * @param text the text of the element
+	 * @param code the color code
+	 */
+	public ChatElement legacy(String text, char code)
+	{
+		return append(Chat.colorize(text, code));
+	}
+
+	/**
+	 * Aligns the selected element to fit the specified width.
+	 * If the base element is selected, it will be cleared and all generated strings will be appended.
+	 *
+	 * @param width the desired width of the block
+	 * @param alignment the alignment of the block
+	 */
+	public ChatElement block(int width, ChatAlignment alignment)
+	{
+		ChatElement block = Chat.block(selection, width, alignment);
+		if(selection == this)
+		{
+			text = "";
+		} else {
+			remove_last();
+		}
+		return append(block);
+	}
+
+	/**
+	 * Appends a space to the end of the ChatElement.
+	 *
+	 * @return the ChatElement
+	 */
+	public ChatElement sp()
+	{
+		return append(' ');
+	}
+
+	/**
+	 * Appends any amount of spaces to the end of the ChatElement.
+	 *
+	 * @param x the amount of spaces
+	 *
+	 * @return the ChatElement
+	 */
+	public ChatElement sp(int x)
+	{
+		char[] spaces = new char[x];
+		Arrays.fill(spaces, ' ');
+		return append(new String(spaces));
+	}
+
+	/**
+	 * Pushes filler to the end of the ChatElement, as a new ChatElement. Fillers fit setText to a pixel width (according
+	 * to Minecraft's default font) Fillers will contain filler characters if the width is too abnormal. If you want to
+	 * avoid filler characters, make sure the width is divisible by 4. (the width of a space) Unexpected behavior might
+	 * occur if used with the translate feature of MC's new chat system. It will also select the last selection.
+	 *
+	 * @param width The width of the filler.
+	 */
+	public ChatElement filler(int width)
+	{
+		if(width == 2)
+		{
+			push(Chat.FILLER_2PX);
+		}
+		else
+		{
+			push(Chat.filler(width));
+		}
+		return selectLast();
+	}
+
+	/**
+	 * Sends the player this object represented as a chat message.
+	 *
+	 * @param player The player that the message will be sent to.
+	 */
+
+	public void send(ChatReciever player)
+	{
+		Chat.send(player, toJSONString());
+	}
+
+	/**
+	 * Returns this object as a legacy chat string. Actually just a shortcut to the static toLegacyString method.
+	 *
+	 * @return Legacy chat string
+	 */
 	public String toLegacyString()
 	{
 		return Chat.toLegacyString(this);
@@ -166,14 +721,9 @@ public class ChatElement
 	{
 		return Chat.toJSONString(this);
 	}
-	
-	/**
-	 * Returns the JSON Representation of this object.
-	 * This representation is valid for Minecraft's JSON chat.
-	 */
+
 	public String toString()
 	{
 		return Chat.toJSONString(this);
 	}
-
 }

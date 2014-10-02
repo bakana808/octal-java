@@ -74,7 +74,7 @@ public class Hologram
 	{
 		//The base
 		WitherSkull skull = loc.getWorld().spawn(loc, WitherSkull.class);
-		//The rider (which will carry the text)
+		//The rider (which will carry the setText)
 		Horse horse = loc.getWorld().spawn(loc, Horse.class);
 		//Stop the skull from moving
 		skull.setPassenger(horse);

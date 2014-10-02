@@ -1,7 +1,7 @@
 package com.octopod.util.minecraft.bukkit;
 
+import com.octopod.util.reflection.Reflection;
 import com.octopod.util.reflection.ReflectionException;
-import com.octopod.util.reflection.ReflectionUtils;
 import net.minecraft.server.v1_7_R4.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
@@ -85,18 +85,18 @@ public class MessageBar {
 	{
 		PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving();
 		try {
-			ReflectionUtils.setField(packet, "a", (int) ENTITY_ID);
-			ReflectionUtils.setField(packet, "b", (byte) EntityType.ENDER_DRAGON.getTypeId());
-			ReflectionUtils.setField(packet, "c", loc.getBlockX());
-			ReflectionUtils.setField(packet, "d", loc.getBlockY());
-			ReflectionUtils.setField(packet, "e", loc.getBlockZ());
-			ReflectionUtils.setField(packet, "f", (byte)0);
-			ReflectionUtils.setField(packet, "g", (byte)0);
-			ReflectionUtils.setField(packet, "h", (byte)0);
-			ReflectionUtils.setField(packet, "i", (byte)0);
-			ReflectionUtils.setField(packet, "j", (byte)0);
-			ReflectionUtils.setField(packet, "k", (byte)0);
-			ReflectionUtils.setField(packet, "l", getWatcher());
+			Reflection.setField(packet, "a", (int) ENTITY_ID);
+			Reflection.setField(packet, "b", (byte) EntityType.ENDER_DRAGON.getTypeId());
+			Reflection.setField(packet, "c", loc.getBlockX());
+			Reflection.setField(packet, "d", loc.getBlockY());
+			Reflection.setField(packet, "e", loc.getBlockZ());
+			Reflection.setField(packet, "f", (byte) 0);
+			Reflection.setField(packet, "g", (byte) 0);
+			Reflection.setField(packet, "h", (byte) 0);
+			Reflection.setField(packet, "i", (byte) 0);
+			Reflection.setField(packet, "j", (byte) 0);
+			Reflection.setField(packet, "k", (byte) 0);
+			Reflection.setField(packet, "l", getWatcher());
 		} catch (ReflectionException e) {
 			e.printStackTrace();
 		}

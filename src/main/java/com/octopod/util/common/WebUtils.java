@@ -31,7 +31,7 @@ public class WebUtils {
 		BufferedReader br;
 
 		try {
-//			Pattern p = Pattern.compile("text/html;\\s+charset=([^\\s]+)\\s*");
+//			Pattern p = Pattern.compile("setText/html;\\s+charset=([^\\s]+)\\s*");
 //			Matcher m = p.matcher(con.getContentType());
 //
 //			String charset = m.matches()?m.group(1):"UTF-8";

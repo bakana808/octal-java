@@ -1,12 +1,12 @@
 package com.octopod.util;
 
-import com.octopod.util.minecraft.chat.Chat;
+import com.octopod.util.minecraft.chat.ChatAlignment;
+import com.octopod.util.minecraft.chat.ChatElement;
 
 public class Main
 {
 	public static void main(String args[])
 	{
-		System.out.println(Chat.cut("wrap wrap wrap wrap wrap", 50));
-		System.out.println(Chat.cut("wrap wrap wrap wrap wrap", 50, true, 15));
+		System.out.println(new ChatElement("aaaa").block(48, ChatAlignment.LEFT));
 	}
 }
