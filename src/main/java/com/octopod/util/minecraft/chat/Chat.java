@@ -454,7 +454,7 @@ public class Chat
 			{
 				int lookbehind = 0; //Amount of characters looked at behind the end index
 				int temp_end = end; //Temporary end marker
-				while(lookbehind <= wrap && text.charAt(temp_end - 1) != ' ')
+				while(lookbehind < wrap && text.charAt(temp_end - 1) != ' ')
 				{
 					temp_end--;
 
