@@ -303,7 +303,7 @@ public class Chat
 	 */
     static private <T> T block(String text, int toWidth, ChatAlignment alignment, char fillerChar, boolean precise, BlockRenderer<T> renderer)
 	{
-        String cutText = cut(text, toWidth) + ChatFormat.RESET;
+        String cutText = cut(text, toWidth)[0] + ChatFormat.RESET;
 
         //The total width (in pixels) needed to fill
         final int totalFillerWidth = toWidth - width(cutText);
@@ -430,9 +430,9 @@ public class Chat
     	return filler(width, precise, emptyFiller, FILLER_RENDERER_CHAT);
     }
 
-    static public String cut(String text, int width)
+    static public String[] cut(String text, int width)
 	{
-    	return cut(text, width, false, 0);
+    	return cut(text, width, 0);
     }
 
 	/**
@@ -442,7 +442,7 @@ public class Chat
 	 * @param text The setText to use for calculation.
 	 * @return The width of the setText inserted. (in pixels)
 	 */
-	static public String cut(String text, int width, boolean wrap, int wrap_threshold)
+	static public String[] cut(String text, int width, int wrap)
 	{
     	int start = 0;
     	int end = text.length();
@@ -450,15 +450,14 @@ public class Chat
     	while(width(text.substring(start, end)) > width)
 		{
     		end--;
-			if(width(text.substring(start, end)) <= width && wrap)
+			if(wrap > 0 && width(text.substring(start, end)) <= width)
 			{
 				int lookbehind = 0; //Amount of characters looked at behind the end index
 				int temp_end = end; //Temporary end marker
-				while(text.charAt(temp_end - 1) != ' ')
+				while(lookbehind <= wrap && text.charAt(temp_end - 1) != ' ')
 				{
 					temp_end--;
 
-					if(lookbehind > wrap_threshold) break;
 					if(temp_end <= 0) break;
 
 					lookbehind++;
@@ -471,8 +470,7 @@ public class Chat
 				}
 			}
     	}
-
-    	return text.substring(start, end);
+    	return new String[]{text.substring(start, end), text.substring(end)};
     }
 
 	public static String toJSONString(ChatElement... elements)
