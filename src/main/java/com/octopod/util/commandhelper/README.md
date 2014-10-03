@@ -1,6 +1,7 @@
 CommandHelper
 ======
-Classes relating to the Minecraft plugin CommandHelper, created by LadyCailin.
+Classes relating to the Minecraft plugin CommandHelper (and its MethodScript language).
+Credits to LadyCailin and the rest of CommandHelper's contributors.
 [CommandHelper Builds](http://builds.enginehub.org/job/commandhelper)
 [CommandHelper GitHub](https://github.com/sk89q/CommandHelper)
 
