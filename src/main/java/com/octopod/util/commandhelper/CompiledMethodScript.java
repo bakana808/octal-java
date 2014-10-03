@@ -20,41 +20,44 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @author Octopod
- *         Created on 5/24/14
+ * @author Octopod Created on 5/24/14
+ */
+
+/**
+ * An object representing the compiled MethodScript.
  */
 public class CompiledMethodScript {
 
 	/**
 	 * The environment that the script will use.
 	 */
-    private Environment environment = null;
+	private Environment environment = null;
 
 	/**
-	 * If false, a clone of the environment will be used in place of the real one
-	 * so as to not save potential environment changes.
+	 * If false, a clone of the environment will be used in place of the real one so as to not save potential
+	 * environment changes.
 	 */
 	private boolean dynamicEnv = false;
 
 	/**
-	 * The procedures that this script has. Since the script needs to be executed
-	 * once to get them, it will be if this variable is null.
-	 * Executing this script at any time will also update this variable.
+	 * The procedures that this script has. Since the script needs to be executed once to get them, it will be if this
+	 * variable is null. Executing this script at any time will also update this variable.
 	 */
-    private Map<String, Procedure> procs = null;
+	private Map<String, Procedure> procs = null;
 
 	/**
 	 * The compiled CompiledMethodScript.
 	 */
-    private ParseTree compiled;
+	private ParseTree compiled;
 
-	private void compile(String ms, File source, Environment environment) throws ConfigCompileException, ConfigCompileGroupException
+	private void compile(String ms, File source, Environment environment)
+	throws ConfigCompileException, ConfigCompileGroupException
 	{
 		//Sets the source to UNKNOWN if null
-		if(source == null) source = Target.UNKNOWN.file();
+		if (source == null) source = Target.UNKNOWN.file();
 
 		//Sets the environment to a default environment if null
-		if(environment == null) {
+		if (environment == null) {
 			this.environment = MethodScript.createEnvironment();
 		} else {
 			this.environment = environment;
@@ -65,69 +68,80 @@ public class CompiledMethodScript {
 
 	/**
 	 * Compiles CompiledMethodScript using a File as a source.
+	 *
 	 * @param source The source of the code, which will be shown if a CommandHelper exception is thrown
 	 * @param script The CompiledMethodScript to compile
-	 * @param env The enviroment in which the code will be run under
+	 * @param env    The enviroment in which the code will be run under
 	 */
-	public CompiledMethodScript(String script, File source, Environment env) throws ConfigCompileException, ConfigCompileGroupException
+	public CompiledMethodScript(String script, File source, Environment env)
+	throws ConfigCompileException, ConfigCompileGroupException
 	{
 		compile(script, source, env);
 	}
 
 	/**
 	 * Compiles CompiledMethodScript using UNKNOWN as the source. (just like the interpreter)
+	 *
 	 * @param script The CompiledMethodScript to compile
-	 * @throws com.laytonsmith.core.exceptions.ConfigCompileException
+	 *
+	 * @throws ConfigCompileException
 	 */
-    public CompiledMethodScript(String script) throws ConfigCompileException, ConfigCompileGroupException
+	public CompiledMethodScript(String script) throws ConfigCompileException, ConfigCompileGroupException
 	{
-        compile(script, null, null);
-    }
+		compile(script, null, null);
+	}
 
 	/**
 	 * Compiles CompiledMethodScript from a File, using the File as the source.
+	 *
 	 * @param source The file to read CompiledMethodScript from.
+	 *
 	 * @throws java.io.IOException
 	 * @throws com.laytonsmith.core.exceptions.ConfigCompileException
 	 */
-    public CompiledMethodScript(File source) throws IOException, ConfigCompileException, ConfigCompileGroupException
+	public CompiledMethodScript(File source) throws IOException, ConfigCompileException, ConfigCompileGroupException
 	{
-        final StringBuilder script = new StringBuilder();
+		final StringBuilder script = new StringBuilder();
 
-        BufferedInputStream input = new BufferedInputStream(new FileInputStream(source));
+		BufferedInputStream input = new BufferedInputStream(new FileInputStream(source));
 
-        int n;
-        while((n = input.read()) != -1) {
-            script.append((char)n);
-        }
+		int n;
+		while ((n = input.read()) != -1) {
+			script.append((char) n);
+		}
 
-        try{
-            input.close();
-        } catch (IOException e) {}
+		try {
+			input.close();
+		} catch (IOException e) {}
 
-        compile(script.toString(), source, null);
-    }
+		compile(script.toString(), source, null);
+	}
 
 	/**
-	 * Sets the environment that this script will use.
-	 * Following this method, all future executions will use this environment.
+	 * Sets the environment that this script will use. Following this method, all future executions will use this
+	 * environment.
+	 *
 	 * @param env
 	 */
-    public void setEnvironment(Environment env) {
-        environment = env;
-    }
+	public void setEnvironment(Environment env)
+	{
+		environment = env;
+	}
 
 	/**
-	 * Gets the environment that this script is going to use.
-	 * If <code>environment</code> is null, then a clone of a default one will be used.
+	 * Gets the environment that this script is going to use. If <code>environment</code> is null, then a clone of a
+	 * default one will be used.
+	 *
 	 * @return the environment to be used.
 	 */
-    public Environment getEnvironment() {
-		if(environment == null) environment = MethodScript.createEnvironment();
-        return environment;
-    }
+	public Environment getEnvironment()
+	{
+		if (environment == null) environment = MethodScript.createEnvironment();
+		return environment;
+	}
 
-	public Environment cloneEnvironment() {
+	public Environment cloneEnvironment()
+	{
 		try {
 			return getEnvironment().clone();
 		} catch (CloneNotSupportedException e) {
@@ -135,137 +149,156 @@ public class CompiledMethodScript {
 		}
 	}
 
-	public void setDynamicEnv(boolean dyn) {
+	public void setDynamicEnv(boolean dyn)
+	{
 		dynamicEnv = dyn;
 	}
 
-	public boolean isEnvironmentDynamic() {
+	public boolean isEnvironmentDynamic()
+	{
 		return dynamicEnv;
 	}
 
-    /**
-     * Returns a map of procedures from the script. The script must be executed once for the environment
-     * to cache the prodecures, so in case the cached list of procedures is null, the script will
-     * be executed during this method.
-     * @return a map of procedures from this script
-     */
-    public Map<String, Procedure> getProcedures() {
-        if(procs == null) {execute();}
-        return procs;
-    }
+	/**
+	 * Returns a map of procedures from the script. The script must be executed once for the environment to cache the
+	 * prodecures, so in case the cached list of procedures is null, the script will be executed during this method.
+	 *
+	 * @return a map of procedures from this script
+	 */
+	public Map<String, Procedure> getProcedures()
+	{
+		if (procs == null) {execute();}
+		return procs;
+	}
 
-	public Procedure getProcedure(String name) {
+	public Procedure getProcedure(String name)
+	{
 		return getProcedures().get(name);
 	}
 
-    /**
-     * Include procedures into this script.
-     * @param newProcs a map of procedures to include in this script.
-     */
-    public CompiledMethodScript include(Map<String, Procedure> newProcs) {
+	/**
+	 * Include procedures into this script.
+	 *
+	 * @param newProcs a map of procedures to include in this script.
+	 */
+	public CompiledMethodScript include(Map<String, Procedure> newProcs)
+	{
 		Map<String, Procedure> procs = getGlobalEnvironment().GetProcs();
-        procs.putAll(newProcs);
+		procs.putAll(newProcs);
 		getGlobalEnvironment().SetProcs(procs);
-        return this;
-    }
+		return this;
+	}
 
 	/**
-	 * Singular method of including procedures in this script.
-	 * All procedure names must start with an underscore.
+	 * Singular method of including procedures in this script. All procedure names must start with an underscore.
+	 *
 	 * @param name
 	 * @param proc
+	 *
 	 * @return
 	 */
-    public CompiledMethodScript include(String name, Procedure proc) {
+	public CompiledMethodScript include(String name, Procedure proc)
+	{
 		Map<String, Procedure> procs = getGlobalEnvironment().GetProcs();
-        procs.put(name, proc);
-        getGlobalEnvironment().SetProcs(procs);
-        return this;
-    }
+		procs.put(name, proc);
+		getGlobalEnvironment().SetProcs(procs);
+		return this;
+	}
 
 	public CompiledMethodScript include(Procedure proc)
 	{
 		return include(proc.getName(), proc);
 	}
 
-    /**
-     * Tells the environment who's running the code.
-     * It would modify what certain functions return such as player().
-     * @param executor The new executor.
-     */
-    public CompiledMethodScript setExecutor(MCCommandSender executor) {
-        getCmdHelperEnvironment().SetCommandSender(executor);
-        return this;
-    }
+	/**
+	 * Tells the environment who's running the code. It would modify what certain functions return such as player().
+	 *
+	 * @param executor The new executor.
+	 */
+	public CompiledMethodScript setExecutor(MCCommandSender executor)
+	{
+		getCmdHelperEnvironment().SetCommandSender(executor);
+		return this;
+	}
 
-    /**
-     * Sets a variable in the environment.
-	 * All variable names must start with an "@" sign.
-     * Unlike setVariableList(), it won't clear all the other variables.
-     * @param varName The variable name. Should be prefixed by "@" most of the time.
-     * @param con The Construct this variable should represent.
-     */
-    public CompiledMethodScript setVariable(String varName, Construct con) {
-        IVariable var = new IVariable(CClassType.AUTO, varName, con, Target.UNKNOWN);
-        IVariableList vars = getVariableList();
-        vars.set(var);
-        setVariableList(vars);
-        return this;
-    }
+	public String getSource()
+	{
+		return getTarget().file().toString();
+	}
 
-    /**
-     * Gets a variable in the environment.
-     * @param varName The variable name.
-     */
-    public Construct getVariable(String varName) {
-        IVariableList vars = getVariableList();
-        if(vars.keySet().contains(varName)) {
-            return vars.get(varName, Target.UNKNOWN).ival();
-        } else {
-            return null;
-        }
-    }
-
-    public String getSource() {
-        return getTarget().file().toString();
-    }
-
-	public Target getTarget() {
+	public Target getTarget()
+	{
 		return compiled.getTarget();
 	}
 
-	public CommandHelperEnvironment getCmdHelperEnvironment() {
+	public CommandHelperEnvironment getCmdHelperEnvironment()
+	{
 		return getEnvironment().getEnv(CommandHelperEnvironment.class);
 	}
 
-	public GlobalEnv getGlobalEnvironment() {
+	public GlobalEnv getGlobalEnvironment()
+	{
 		return getEnvironment().getEnv(GlobalEnv.class);
 	}
 
-    /**
-     * Sets the environment's variable list.
-     * Using this may unintentionally clear all pre-existing variables,
-     * so maybe you'd want to use setVariable() instead?
-     * @param ivarList The IVariableList to use as the new variable list.
-     */
-    public CompiledMethodScript setVariableList(IVariableList ivarList) {
-        getGlobalEnvironment().SetVarList(ivarList);
-        return this;
-    }
-
-    /**
-     * Gets the environment's variable list.
-     * @return the IVariableList.
-     */
-    public IVariableList getVariableList() {
-        return getGlobalEnvironment().GetVarList();
-    }
-
-    public Construct execute(MCCommandSender executor)
+	/**
+	 * Sets the environment's variable list. Using this may unintentionally clear all pre-existing variables, so maybe
+	 * you'd want to use setVar() instead?
+	 *
+	 * @param ivarList The IVariableList to use as the new variable list.
+	 */
+	public CompiledMethodScript setVar(IVariableList ivarList)
 	{
-        setExecutor(executor);
-        return execute();
-    }
+		getGlobalEnvironment().SetVarList(ivarList);
+		return this;
+	}
+
+	/**
+	 * Gets the environment's variable list.
+	 *
+	 * @return the IVariableList.
+	 */
+	public IVariableList getVars()
+	{
+		return getGlobalEnvironment().GetVarList();
+	}
+
+	/**
+	 * Sets a variable in the environment. All variable names must start with an "@" sign. Unlike setVar(), it won't
+	 * clear all the other variables.
+	 *
+	 * @param varName the variable name
+	 * @param con     The Construct this variable should represent.
+	 */
+	public CompiledMethodScript setVar(String varName, Construct con)
+	{
+		IVariable var = new IVariable(CClassType.AUTO, varName, con, Target.UNKNOWN);
+		IVariableList vars = getGlobalEnvironment().GetVarList();
+		vars.set(var);
+		setVar(vars);
+		return this;
+	}
+
+	/**
+	 * Gets a variable in the environment.
+	 *
+	 * @param varName the variable name
+	 */
+	public Construct getVar(String varName)
+	{
+		IVariableList vars = getGlobalEnvironment().GetVarList();
+		if (vars.keySet().contains(varName)) {
+			return vars.get(varName, Target.UNKNOWN).ival();
+		} else {
+			return CNull.NULL;
+		}
+	}
+
+	public Construct execute(MCCommandSender executor)
+	{
+		setExecutor(executor);
+		return execute();
+	}
 
 	public Construct execute(MCCommandSender executor, Environment env)
 	{
@@ -273,32 +306,33 @@ public class CompiledMethodScript {
 		return execute(env);
 	}
 
-    public Construct execute()
+	public Construct execute()
 	{
-        return execute((MCCommandSender)null, null);
-    }
+		return execute((MCCommandSender) null, null);
+	}
 
-    public Construct execute(MethodScriptComplete done)
+	public Construct execute(MethodScriptComplete done)
 	{
 		return execute(done, null);
-    }
+	}
 
 	public Construct execute(Environment env)
 	{
-		return execute((MCCommandSender)null, env);
+		return execute((MCCommandSender) null, env);
 	}
 
 	/**
 	 * Executes this code.
-	 * @param done this will run after the code is done, can be null
+	 *
+	 * @param done        this will run after the code is done, can be null
 	 * @param externalEnv the execution will use this environment if provided, can be null
+	 *
 	 * @return the Construct that results from this code
 	 */
 	public Construct execute(MethodScriptComplete done, Environment externalEnv)
 	{
 		Environment env;
-		if(externalEnv == null)
-		{
+		if (externalEnv == null) {
 			//Use our environment
 			env = dynamicEnv ? getEnvironment() : cloneEnvironment();
 		} else {
@@ -309,29 +343,31 @@ public class CompiledMethodScript {
 		MethodScriptCompiler.registerAutoIncludes(this.environment, null);
 		Construct ret = MethodScriptCompiler.execute(compiled, env, done, null);
 
-		if(externalEnv == null)
+		if (externalEnv == null)
 			procs = env.getEnv(GlobalEnv.class).GetProcs();
 
 		return ret;
 	}
 
-	public Thread executeAsync(final MethodScriptComplete done) {
-		Thread thread = new Thread()
-		{
+	public Thread executeAsync(final MethodScriptComplete done)
+	{
+		Thread thread = new Thread() {
 			public void run() {execute(done);}
 		};
 		thread.start();
 		return thread;
 	}
 
-	public Thread executeAsync() {
+	public Thread executeAsync()
+	{
 		return executeAsync(null);
 	}
 
-    @Deprecated
-    public CompiledMethodScript addEnvironmentImpl(EnvironmentImpl ienv) {
+	@Deprecated
+	public CompiledMethodScript addEnvironmentImpl(EnvironmentImpl ienv)
+	{
 		environment = environment.cloneAndAdd(ienv);
-        return this;
-    }
+		return this;
+	}
 
 }

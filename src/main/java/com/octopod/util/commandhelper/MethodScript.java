@@ -99,7 +99,7 @@ public class MethodScript
 		CompiledMethodScript ms = new CompiledMethodScript(script);
 
 		if(variables != null) {
-			ms.setVariableList(variables);
+			ms.setVar(variables);
 		}
 		if(executor != null) {
 			ms.setExecutor(executor);

@@ -20,12 +20,12 @@ MethodScript.eval("msg('hello')", new BukkitMCPlayer(player));
 
 Compile code:
 ```java
-CompiledMethodScript ms = MethodScript.compile("broadcast('hello')");
+CompiledMethodScript A = MethodScript.compile("broadcast('hello')");
 //or
-CompiledMethodScript ms = new CompiledMethodScript("broadcast('hello')");
+CompiledMethodScript B = new CompiledMethodScript("broadcast('hello')");
 ```
 
-Set variable in CompiledMethodScript (all variable names start with @):
+Set variable in CompiledMethodScript A (all variable names start with @):
 ```java
 ms.setVariable("@a", new CInt(5, Target.UNKNOWN));
 ```
@@ -41,4 +41,20 @@ Evaluate code (from CompiledMethodScript):
 ms.execute();
 //with player
 ms.execute(new BukkitMCPlayer(player));
+```
+
+Setting a variable before executing CompiledMethodScript A:
+```java
+CompiledMethodScript A = new CompiledMethodScript("broadcast(@hello)");
+
+A.setVar("@hello", new CString("hello", A.getTarget()));
+```
+
+Including procedures from CompiledMethodScript A in CompiledMethodScript B:
+```java
+CompiledMethodScript A = new CompiledMethodScript("proc _hello() {broadcast('hello')}");
+CompiledMethodScript B = new CompiledMethodScript("_hello()");
+
+//The script needs to be executed at least once to get the procedures
+B.include(A.getProcedures());
 ```
