@@ -20,24 +20,14 @@ public class ChatElement
 
 	}
 
-	public ChatElement(Object object)
+	public ChatElement(ChatColor color)
 	{
-		this.text = object.toString();
+		this.color = color;
 	}
 
-	public ChatElement(Object object, ChatColor color, ChatFormat... formats)
+	public ChatElement(ChatColor color, ChatFormat... formats)
 	{
-		this.text = object.toString();
 		this.color = color;
-		this.formats = formats;
-	}
-
-	public ChatElement(Object object, ChatColor color, ChatClickEvent click, ChatHoverEvent hover, ChatFormat... formats)
-	{
-		this.text = object.toString();
-		this.color = color;
-		this.click = click;
-		this.hover = hover;
 		this.formats = formats;
 	}
 
@@ -64,16 +54,16 @@ public class ChatElement
 
 	private String text = "";
 	private boolean translate = false;
-	private List<String> with = new ArrayList<>();
+	private List<String> with = null;
 	
 	private ChatColor color = null;
 	private ChatFormat[] formats = {};
 	
 	private ChatClickEvent click = null;
-	private String click_value = "";
+	private String click_value = null;
 	
 	private ChatHoverEvent hover = null;
-	private String hover_value = "";
+	private String hover_value = null;
 
 	private List<ChatElement> extras = new ArrayList<>();
 	private ChatElement selection = this;
@@ -96,8 +86,8 @@ public class ChatElement
 	//Variable getters
 	public ChatClickEvent 	getClick() 		{return click;}
 	public ChatHoverEvent 	getHover() 		{return hover;}
-	public String 			getClickValue() {return click_value;}
-	public String 			getHoverValue() {return hover_value;}
+	public String 			getClickValue() {return click_value == null ? "" : click_value;}
+	public String 			getHoverValue() {return hover_value == null ? "" : hover_value;}
 	public String 			getText() 		{return text;}
 	public ChatColor 		getColor() 		{return color;}
 	public ChatFormat[] 	getFormats() 	{return formats;}
@@ -407,15 +397,12 @@ public class ChatElement
 		return extras.get(index);
 	}
 
-	private void remove(int index)
-	{
-		validateIndex(index);
-		extras.remove(index);
-	}
-
 	private void remove_last()
 	{
-		remove(extras.size() - 1);
+		if(extras != null)
+		{
+			extras.remove(extras.size() - 1);
+		}
 	}
 
 	private void push(Collection<ChatElement> list)
@@ -464,6 +451,17 @@ public class ChatElement
 	 *
 	 * @param text the text to append
 	 */
+	public ChatElement sappend(String text, ChatColor color, ChatFormat... formats)
+	{
+		push(new ChatElement(" "), new ChatElement(text, color, formats));
+		return selectLast();
+	}
+
+	/**
+	 * Appends a space and text at the end of the element.
+	 *
+	 * @param text the text to append
+	 */
 	public ChatElement sappend(String text)
 	{
 		push(new ChatElement(" "), new ChatElement(text));
@@ -472,7 +470,7 @@ public class ChatElement
 
 	public ChatElement append(Object object)
 	{
-		push(new ChatElement(object.toString(), color));
+		push(new ChatElement(object.toString()));
 		return selectLast();
 	}
 
@@ -485,7 +483,7 @@ public class ChatElement
 	 */
 	public ChatElement append(Object object, ChatColor color, ChatFormat... formats)
 	{
-		push(new ChatElement(object, color, formats));
+		push(new ChatElement(object.toString(), color, formats));
 		return selectLast();
 	}
 
@@ -496,7 +494,7 @@ public class ChatElement
 	 */
 	public ChatElement append(String text)
 	{
-		push(new ChatElement(text, color));
+		push(new ChatElement(text));
 		return selectLast();
 	}
 
@@ -527,22 +525,22 @@ public class ChatElement
 	/**
 	 * Appends an array of elements to the end of the builder and selects the last one.
 	 *
+	 * @param element the elemnt to append
+	 */
+	public ChatElement append(ChatElement element)
+	{
+		push(element);
+		return selectLast();
+	}
+
+	/**
+	 * Appends an array of elements to the end of the builder and selects the last one.
+	 *
 	 * @param array an array of elements
 	 */
 	public ChatElement append(ChatElement... array)
 	{
 		push(array);
-		return selectLast();
-	}
-
-	/**
-	 * Appends all elements from another builder to the end of this builder and selects the last one.
-	 *
-	 * @param builder the other builder
-	 */
-	public ChatElement append(ChatElement builder)
-	{
-		push(builder.getExtraElements());
 		return selectLast();
 	}
 
@@ -561,7 +559,7 @@ public class ChatElement
 	 */
 	public ChatElement insert(int index, Object object, ChatColor color, ChatFormat... formats)
 	{
-		push(index, new ChatElement(object, color, formats));
+		push(index, new ChatElement(object.toString(), color, formats));
 		return selectLast();
 	}
 
@@ -704,7 +702,24 @@ public class ChatElement
 
 	public void send(ChatReciever player)
 	{
-		Chat.send(player, toJSONString());
+		player.sendJSONMessage(toJSONString());
+	}
+
+	public void send(ChatReciever player, boolean split)
+	{
+		if(split)
+		{
+			for(ChatElement element: extras)
+			{
+				if(element.getColor() == null) {element.setColor(color);}
+				if(element.getFormats() == null) {element.setFormat(formats);}
+				player.sendJSONMessage(element.toJSONString());
+			}
+		}
+		else
+		{
+			player.sendJSONMessage(toJSONString());
+		}
 	}
 
 	/**

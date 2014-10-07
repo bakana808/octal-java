@@ -68,23 +68,34 @@ public class Chat
 	static public int width(String text)
 	{
 		int width = 0;
-		boolean noWidth;
+		boolean isCode = false;
 		boolean bolded = false;
-		char lastChar = ' ';
 
 		for(char character:text.toCharArray())
 		{
-			noWidth = false;
-			if(lastChar == '\u00a7')
+			if(character == '\u00a7')
 			{
-				bolded = Character.toString(character).toLowerCase().equals("l");
-				noWidth = true;
+				isCode = true;
 			}
-			lastChar = character;
-			if(!noWidth)
+			else
 			{
-				width += width(character);
-				if(bolded) width += 1;
+				if(isCode)
+				{
+					if(bolded && ChatColor.fromChar(character) != null)
+					{
+						bolded = false;
+					}
+					else if(!bolded)
+					{
+						bolded = (character == 'l' || character == 'L');
+					}
+					isCode = false;
+				}
+				else
+				{
+					width += width(character);
+					if(bolded) width += 1;
+				}
 			}
 		}
 
@@ -93,7 +104,7 @@ public class Chat
 
 	public static void send(ChatReciever target, String json)
 	{
-		target.sendJsonMessage(json);
+		target.sendJSONMessage(json);
     }
 
 	public static String colorize(String message)
@@ -128,19 +139,33 @@ public class Chat
 	{
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(element.getColor());
+		if(element.getColor() != null)
+		{
+			sb.append(element.getColor());
+		}
 		for(ChatFormat format: element.getFormats())
 		{
 			sb.append(format);
 		}
-		sb.append(element.getText());
+		if(!element.getText().equals(""))
+		{
+			sb.append(element.getText());
+		}
 
-		for(ChatElement extra: element.getExtraElements()) {
-			sb.append(extra.getColor());
-			for(ChatFormat format: extra.getFormats()) {
+		for(ChatElement extra: element.getExtraElements())
+		{
+			if(extra.getColor() != null)
+			{
+				sb.append(extra.getColor());
+			}
+			for(ChatFormat format: extra.getFormats())
+			{
 				sb.append(format);
 			}
-			sb.append(extra.getText());
+			if(!extra.getText().equals(""))
+			{
+				sb.append(extra.getText());
+			}
 		}
 
 		return sb.toString();
@@ -262,9 +287,9 @@ public class Chat
 		public ChatElement render(String left, String text, String right)
 		{
 			return new ChatElement().
-				appendif(!left.equals(""), left, FILLER_COLOR).
+				appendif(!left.equals(""), left).
 				append(text).
-				appendif(!right.equals(""), right, FILLER_COLOR);
+				appendif(!right.equals(""), right);
 		}
 	};
 
@@ -519,7 +544,7 @@ public class Chat
 			json.put("clickEvent", click);
 		}
 
-		if(element.getClick() != null)
+		if(element.getHover() != null)
 		{
 			Map hover = new HashMap();
 			hover.put("action", element.getHover().name().toLowerCase());
@@ -539,7 +564,7 @@ public class Chat
 
 		if(element.getExtraElements().size() > 0)
 		{
-			json.put("extras", element.getSimpleExtraElements());
+			json.put("extra", element.getSimpleExtraElements());
 		}
 
 		return JSONValue.toJSONString(json);
