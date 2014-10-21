@@ -31,6 +31,12 @@ public class MethodScriptEnvironment
 		this.t = Target.UNKNOWN;
 	}
 
+	public MethodScriptEnvironment(Target t)
+	{
+		this.env = CommandHelper.newEnvironment();
+		this.t = t;
+	}
+
 	/**
 	 * Creates a MethodScriptEnvironment (wrapper) from an Environment.
 	 * Target will be UNKNOWN.

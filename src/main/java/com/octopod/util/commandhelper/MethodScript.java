@@ -46,14 +46,13 @@ public class MethodScript
 		//Sets the source to UNKNOWN if null
 		if (source == null) source = Target.UNKNOWN.file();
 
-		//Sets the environment to a default environment if null
-		if (env == null) {
-			this.environment = new MethodScriptEnvironment();
-		} else {
-			this.environment = env;
-		}
-
 		compiled = MethodScriptCompiler.compile(MethodScriptCompiler.lex(script, source, true));
+
+		//Sets the environment to a default environment if null
+		if (env == null)
+			this.environment = new MethodScriptEnvironment(compiled.getTarget());
+		else
+			this.environment = env;
 
 		if(autorun) execute();
 	}
