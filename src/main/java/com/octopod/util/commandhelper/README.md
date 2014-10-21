@@ -36,19 +36,20 @@ MethodScript A = CommandHelper.compile("broadcast('hello')");
 MethodScript B = new MethodScript("broadcast('goodbye')");
 ```
 
-MethodScript Environment Editing
+MethodScript environment access
 ------
-Set variable in MethodScript A(all variable names start with @):
+Set variable in MethodScript A (all variable names start with '@'):
 ```java
 MethodScript A = new MethodScript("broadcast(@a)");
 A.getEnvironment().setVariable("@a", new CInt(5, Target.UNKNOWN));
 ```
 
-Set procedure in a MethodScript(all procedure names start with _):
+Set procedure in a MethodScript (all procedure names start with '_'):
 ```java
 MethodScript A = new MethodScript("_something('hello')");
 Procedure proc = CommandHelper.proc("_something", new ArrayList<IVariable>(), "broadcast('hello')");
 A.getEnvironment().include(proc);
+```
 
 Setting a variable before executing CompiledMethodScript A:
 ```java
