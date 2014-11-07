@@ -1,18 +1,25 @@
 package com.octopod.minecraft;
 
 import com.octopod.util.minecraft.chat.Chat;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.Bukkit;
+import org.bukkit.command.ConsoleCommandSender;import java.lang.Override;import java.lang.String;
 
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public class BukkitConsole implements ServerConsole
+public class BukkitConsole implements MinecraftConsole
 {
 	ConsoleCommandSender console;
 
 	public BukkitConsole(ConsoleCommandSender sender)
 	{
 		this.console = sender;
+	}
+
+	@Override
+	public void dispatchCommand(String command)
+	{
+		Bukkit.getServer().dispatchCommand(console, command);
 	}
 
 	@Override
@@ -28,7 +35,7 @@ public class BukkitConsole implements ServerConsole
 	}
 
 	@Override
-	public void sendJsonMessage(String json)
+	public void sendJSONMessage(String json)
 	{
 		sendMessage(json);
 	}

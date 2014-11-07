@@ -6,14 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.lang.Override;import java.lang.String;import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public class BukkitServerInterface implements ServerInterface
+public class BukkitServerInterface implements MinecraftServerInterface
 {
 	@Override
 	public void console(String message)
@@ -22,10 +22,22 @@ public class BukkitServerInterface implements ServerInterface
 	}
 
 	@Override
-	public void player(String ID, String message) throws PlayerOfflineException
+	public void command(String command)
 	{
-		ServerPlayer player = getPlayer(ID);
-		if(player == null) throw new PlayerOfflineException("ServerPlayer with UUID " + ID + " not found.");
+		getConsole().dispatchCommand(command);
+	}
+
+	@Override
+	public void command(MinecraftPlayer player, String command)
+	{
+		player.dispatchCommand(command);
+	}
+
+	@Override
+	public void message(String ID, String message) throws PlayerOfflineException
+	{
+		MinecraftPlayer player = getPlayer(ID);
+		if(player == null) throw new PlayerOfflineException("MinecraftPlayer with UUID " + ID + " not found.");
 		player.sendMessage(message);
 	}
 
@@ -42,17 +54,27 @@ public class BukkitServerInterface implements ServerInterface
 	}
 
 	@Override
-	public ServerPlayer getPlayer(String ID)
+	public MinecraftPlayer getPlayer(String UUID)
 	{
 		for(Player player: Bukkit.getOnlinePlayers())
 		{
-			if(player.getUniqueId().toString().equals(ID)) return new BukkitPlayer(player);
+			if(player.getUniqueId().toString().equals(UUID)) return new BukkitPlayer(player);
 		}
 		return null;
 	}
 
 	@Override
-	public ServerConsole getConsole()
+	public MinecraftOfflinePlayer getOfflinePlayer(String UUID)
+	{
+		for(OfflinePlayer player: Bukkit.getOfflinePlayers())
+		{
+			if(player.getUniqueId().toString().equals(UUID)) return new BukkitOfflinePlayer(player);
+		}
+		return null;
+	}
+
+	@Override
+	public MinecraftConsole getConsole()
 	{
 		return new BukkitConsole(Bukkit.getConsoleSender());
 	}
@@ -64,11 +86,19 @@ public class BukkitServerInterface implements ServerInterface
 	}
 
 	@Override
-	public List<ServerPlayer> getOnlinePlayers()
+	public MinecraftPlayer[] getOnlinePlayers()
 	{
-		List<ServerPlayer> players = new ArrayList<>();
+		List<MinecraftPlayer> players = new ArrayList<>();
 		for(Player p: Bukkit.getOnlinePlayers()) players.add(new BukkitPlayer(p));
-		return players;
+		return players.toArray(new MinecraftPlayer[players.size()]);
+	}
+
+	@Override
+	public MinecraftOfflinePlayer[] getOfflinePlayers()
+	{
+		List<MinecraftOfflinePlayer> players = new ArrayList<>();
+		for(OfflinePlayer p: Bukkit.getOfflinePlayers()) players.add(new BukkitOfflinePlayer(p));
+		return players.toArray(new MinecraftOfflinePlayer[players.size()]);
 	}
 
 	@Override
@@ -78,11 +108,37 @@ public class BukkitServerInterface implements ServerInterface
 	}
 
 	@Override
-	public List<String> getWhitelistedPlayers()
+	public String[] getWhitelistedPlayers()
 	{
 		List<String> players = new ArrayList<>();
 		for(OfflinePlayer p: Bukkit.getWhitelistedPlayers()) players.add(p.getUniqueId().toString());
-		return players;
+		return players.toArray(new String[players.size()]);
+	}
+
+	@Override
+	public boolean isWhitelisted(String ID)
+	{
+		for(OfflinePlayer p: Bukkit.getWhitelistedPlayers())
+		{
+			if(p.getUniqueId().toString().equals(ID)) return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isBanned(String ID)
+	{
+		for(OfflinePlayer p: Bukkit.getBannedPlayers())
+		{
+			if(p.getUniqueId().toString().equals(ID)) return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isFull()
+	{
+		return getOnlinePlayers().length >= getMaxPlayers();
 	}
 
 }
