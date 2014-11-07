@@ -6,7 +6,7 @@
 	<artifactId>octal</artifactId>
 	<version>0.1.1</version>
 
-	<name>OctalLibrary</name>
+	<name>octal</name>
 
     <scm>
         <!--<connection>scm:git:http://git@gitlab.nixium.com:TheOctopod/network.git</connection>
@@ -75,6 +75,12 @@
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
             <version>3.3.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
         </dependency>
 	</dependencies>
 </project>
